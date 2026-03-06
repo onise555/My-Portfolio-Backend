@@ -19,7 +19,6 @@ if (app.Environment.IsDevelopment())
 }
   
 app.UseHttpsRedirection();
-axlachemijeria chamobrdzandi melia
 app.UseAuthorization();
 
 app.MapControllers();
