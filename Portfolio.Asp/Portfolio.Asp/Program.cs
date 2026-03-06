@@ -26,13 +26,7 @@ app.UseAuthorization();
 
 app.MapControllers(); 
 
-<<<<<<< Updated upstream
-yufmg
- 
-=======
 
- chrunk
->>>>>>> Stashed changes
 
 
 app.Run();
