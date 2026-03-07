@@ -8,4 +8,4 @@ public enum EmploymentType
     Internship = 4,
     Contract = 5,
     Volunteer = 6
-}
+}   
