@@ -1,6 +1,8 @@
 ﻿namespace Portfolio.Asp.Enum
 {
-    public class ToolCategory
+    public enum ToolCategory
     {
+        VideoAndDesign = 1 ,
+        Development = 2 ,
     }
 }
