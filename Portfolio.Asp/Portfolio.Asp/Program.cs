@@ -8,7 +8,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// CORS
+// CORS კონფიგურაცია
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -19,31 +19,27 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Database
+// მონაცემთა ბაზა
 builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
 var app = builder.Build();
 
-// Swagger
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Swagger-ის ჩართვა Production-ზეც (რომ ონლაინ დაინახოთ)
+app.UseSwagger();
+app.UseSwaggerUI(options => {
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+    options.RoutePrefix = string.Empty; // Swagger გაიხსნება პირდაპირ მთავარ გვერდზე
+});
 
 app.UseCors();
-
-// wwwroot static files
 app.UseStaticFiles();
 
-// uploads static files
+// ფაილების ატვირთვის საქაღალდეების მართვა
 var uploadRoot = Environment.GetEnvironmentVariable("UPLOAD_ROOT");
-
 if (!string.IsNullOrWhiteSpace(uploadRoot))
 {
     Directory.CreateDirectory(uploadRoot);
-
     app.UseStaticFiles(new StaticFileOptions
     {
         FileProvider = new PhysicalFileProvider(uploadRoot),
@@ -54,7 +50,6 @@ else
 {
     var localUploads = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
     Directory.CreateDirectory(localUploads);
-
     app.UseStaticFiles(new StaticFileOptions
     {
         FileProvider = new PhysicalFileProvider(localUploads),
@@ -65,6 +60,9 @@ else
 app.UseAuthorization();
 app.MapControllers();
 
-// Railway / Runway port
+// Health Check / Default Route - რომ 404 არ ამოაგდოს
+app.MapGet("/health", () => "API is running smoothly!");
+
+// პორტის აღება გარემო ცვლადიდან (Railway/Render სტანდარტი)
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 app.Run($"http://0.0.0.0:{port}");
