@@ -10,8 +10,9 @@ public class language
     public LanguageLevel level { get; set; }
     
     
-    // Many-To-One კავშირი  
     
+    
+    // Many-To-One კავშირი  
     public int ProfileId { get; set; }
     public Profile Profile { get; set; }
 }
