@@ -12,8 +12,20 @@ namespace Portfolio.Asp.Skills
 
         public ToolCategory ToolCategory { get; set; }
 
+<<<<<<< Updated upstream
         public List<Profile > Profile { get; set; } =  new List<Profile>(); 
         public List<Project> projects { get; set; } = new List<Project> ();    
+=======
+
+        //Many-To-Many კავშირები
+
+        public ToolCategory toolCategory { get; set; }
+
+
+        public List<Profile> Profile { get; set; } = new List<Profile>();
+        public List<Project> projects { get; set; } = new List<Project>();
+
+>>>>>>> Stashed changes
 
     }
 }
