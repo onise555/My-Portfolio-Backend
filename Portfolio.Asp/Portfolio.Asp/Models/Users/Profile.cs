@@ -33,6 +33,8 @@ namespace Portfolio.Asp.Models.User
 
    
 
+        // One-To-Many კავშირი 
+        public List<Contact> contacts { get; set; } = new List<Contact>();
 
     }
 }
