@@ -1,4 +1,6 @@
-﻿namespace Portfolio.Asp.Models.User
+﻿using Amazon;
+
+namespace Portfolio.Asp.Models.Users
 {
     public class User
     {

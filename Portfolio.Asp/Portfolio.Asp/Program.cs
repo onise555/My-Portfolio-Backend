@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Portfolio.Asp.Data;
-using Portfolio.Asp.Services; 
+using Portfolio.Asp.Repositories;
+using Portfolio.Asp.Services;
+using Portfolio.Asp.Services.UserSer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +12,9 @@ builder.Services.AddSwaggerGen();
 
 // 1. S3 სერვისის რეგისტრაცია (Dependency Injection)
 builder.Services.AddScoped<S3Service>();
+
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<IUserService, UserService>();
 
 // CORS კონფიგურაცია
 builder.Services.AddCors(options =>
