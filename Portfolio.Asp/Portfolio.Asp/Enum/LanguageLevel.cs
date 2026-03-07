@@ -2,10 +2,6 @@ namespace Portfolio.Asp.Enum;
 
 public enum LanguageLevel
 {
-    
-    
-    // Enum List
-    
     Beginner = 1,
     Intermediate = 2,
     Advanced = 3,
