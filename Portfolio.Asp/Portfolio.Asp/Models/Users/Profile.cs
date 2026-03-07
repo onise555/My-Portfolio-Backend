@@ -4,10 +4,11 @@ using Portfolio.Asp.Models.languages;
 using Portfolio.Asp.Models.Projects;
 using Portfolio.Asp.Models.Skills ;
 using Portfolio.Asp.Models.SocialLinks;
+using Portfolio.Asp.Models.Users;
 using Portfolio.Asp.Models.WorkExperiations;
 
 
-namespace Portfolio.Asp.Models.User
+namespace Portfolio.Asp.Models.Users
 {
     public class Profile
     {
