@@ -1,7 +1,7 @@
 
-﻿using Portfolio.Asp.Models.Academies;
+using Portfolio.Asp.Models.Academies;
 
-﻿using Portfolio.Asp.Models.Contacts;
+using Portfolio.Asp.Models.Contacts;
 
 using Portfolio.Asp.Models.languages;
 using Portfolio.Asp.Models.SocialLinks;
