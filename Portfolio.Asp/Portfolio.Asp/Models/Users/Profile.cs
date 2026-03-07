@@ -25,7 +25,7 @@ namespace Portfolio.Asp.Models.User
         // One-To-Many კავშირი 
         public List<language> languages { get; set; } = new List<language>();
 
-<<<<<<< HEAD
+
 
         public List<Academy> academies { get; set; } =new List<Academy>();
 
@@ -34,10 +34,8 @@ namespace Portfolio.Asp.Models.User
 
    
 
-=======
-        // One-To-Many კავშირი 
-        public List<Contact> contacts { get; set; } = new List<Contact>();
->>>>>>> daa1fe4c737439552069441a7382c9587b63d240
+  
+
 
     }
 }
