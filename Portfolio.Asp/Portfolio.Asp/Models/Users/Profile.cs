@@ -31,7 +31,7 @@ namespace Portfolio.Asp.Models.User
 
 
    
-
+        // One-To-Many კავშირი         // One-To-Many კავშირი         // One-To-Many კავშირი         // One-To-Many კავშირი 
   
 
 
