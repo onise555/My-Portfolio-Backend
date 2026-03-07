@@ -19,8 +19,7 @@ namespace Portfolio.Asp.Models.User
 
 
 
-        // One-To-Many კავშირი s
-
+        // One-To-Many კავშირიები
         public List<Project> projects { get; set; } = new List<Project>();
 
         public List<Tools> Tools { get; set; } = new List<Tools>();
