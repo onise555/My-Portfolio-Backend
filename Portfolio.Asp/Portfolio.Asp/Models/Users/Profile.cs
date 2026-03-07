@@ -22,7 +22,7 @@ namespace Portfolio.Asp.Models.User
         public List<language> languages { get; set; } = new List<language>();
 
         // One-To-Many კავშირი 
-        public List<Contact> contacts { get; set; }
+        public List<Contact> contacts { get; set; } = new List<Contact>();
 
     }
 }
