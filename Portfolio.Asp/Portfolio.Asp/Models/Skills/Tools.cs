@@ -14,13 +14,11 @@ namespace Portfolio.Asp.Models.Skills
         public int Id { get; set; }
         public string Name { get; set; }
         public string Badge { get; set; }
+        public ToolCategory toolCategory { get; set; }
 
 
 
         //Many-To-Many კავშირები
-
-        public ToolCategory toolCategory { get; set; }
-
 
         public List<Profile> Profile { get; set; } = new List<Profile>();
         public List<Project> projects { get; set; } = new List<Project>();
