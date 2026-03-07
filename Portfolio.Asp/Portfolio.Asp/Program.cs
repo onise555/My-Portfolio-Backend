@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Portfolio.Asp.Data;
-using Portfolio.Asp.Services; // დაამატე ეს S3Service-ისთვის
+using Portfolio.Asp.Services; 
 
 var builder = WebApplication.CreateBuilder(args);
 
