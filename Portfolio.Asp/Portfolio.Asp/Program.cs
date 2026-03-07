@@ -1,12 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.FileProviders;
 using Portfolio.Asp.Data;
+using Portfolio.Asp.Services; // დაამატე ეს S3Service-ისთვის
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// 1. S3 სერვისის რეგისტრაცია (Dependency Injection)
+builder.Services.AddScoped<S3Service>();
 
 // CORS კონფიგურაცია
 builder.Services.AddCors(options =>
@@ -19,49 +22,27 @@ builder.Services.AddCors(options =>
     });
 });
 
-// მონაცემთა ბაზა
+// მონაცემთა ბაზა (PostgreSQL)
 builder.Services.AddDbContext<DataContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
 var app = builder.Build();
 
-// Swagger-ის ჩართვა Production-ზეც (რომ ონლაინ დაინახოთ)
+// Swagger (Production-ზეც ჩართულია)
 app.UseSwagger();
 app.UseSwaggerUI(options => {
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-    options.RoutePrefix = string.Empty; // Swagger გაიხსნება პირდაპირ მთავარ გვერდზე
+    options.RoutePrefix = string.Empty;
 });
 
 app.UseCors();
-app.UseStaticFiles();
 
-// ფაილების ატვირთვის საქაღალდეების მართვა
-var uploadRoot = Environment.GetEnvironmentVariable("UPLOAD_ROOT");
-if (!string.IsNullOrWhiteSpace(uploadRoot))
-{
-    Directory.CreateDirectory(uploadRoot);
-    app.UseStaticFiles(new StaticFileOptions
-    {
-        FileProvider = new PhysicalFileProvider(uploadRoot),
-        RequestPath = "/uploads"
-    });
-}
-else
-{
-    var localUploads = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
-    Directory.CreateDirectory(localUploads);
-    app.UseStaticFiles(new StaticFileOptions
-    {
-        FileProvider = new PhysicalFileProvider(localUploads),
-        RequestPath = "/uploads"
-    });
-}
+// მხოლოდ სტანდარტული static files (CSS, JS), /uploads აღარ გვინდა
+app.UseStaticFiles();
 
 app.UseAuthorization();
 app.MapControllers();
 
-
-
-// პორტის აღება გარემო ცვლადიდან (Railway/Render სტანდარტი)
+// პორტის დინამიური მართვა
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 app.Run($"http://0.0.0.0:{port}");
