@@ -7,12 +7,8 @@ namespace Portfolio.Asp.Services.UserSer
     {
         Task Create(CreateUserRequest request);
         Task Update(UpdateUserRequest request);
-        Task Delete(int id) ;
+        Task Delete(int id);
         Task<UserDTO?> GetById(int id);
         Task<List<UserDTO>> GetAllUser();
-
- 
-
-
     }
 }
