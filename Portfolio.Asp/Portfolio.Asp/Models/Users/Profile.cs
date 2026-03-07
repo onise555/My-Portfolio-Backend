@@ -1,4 +1,8 @@
+
+﻿using Portfolio.Asp.Models.Academies;
+
 ﻿using Portfolio.Asp.Models.Contacts;
+
 using Portfolio.Asp.Models.languages;
 using Portfolio.Asp.Models.SocialLinks;
 
@@ -21,8 +25,19 @@ namespace Portfolio.Asp.Models.User
         // One-To-Many კავშირი 
         public List<language> languages { get; set; } = new List<language>();
 
+<<<<<<< HEAD
+
+        public List<Academy> academies { get; set; } =new List<Academy>();
+
+        public List<Contact> contacts { get; set; } = new List<Contact>();
+
+
+   
+
+=======
         // One-To-Many კავშირი 
         public List<Contact> contacts { get; set; } = new List<Contact>();
+>>>>>>> daa1fe4c737439552069441a7382c9587b63d240
 
     }
 }
