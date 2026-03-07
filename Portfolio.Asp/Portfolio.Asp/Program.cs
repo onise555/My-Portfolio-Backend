@@ -60,8 +60,7 @@ else
 app.UseAuthorization();
 app.MapControllers();
 
-// Health Check / Default Route - რომ 404 არ ამოაგდოს
-app.MapGet("/health", () => "API is running smoothly!");
+
 
 // პორტის აღება გარემო ცვლადიდან (Railway/Render სტანდარტი)
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
