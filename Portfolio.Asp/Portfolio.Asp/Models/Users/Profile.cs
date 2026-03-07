@@ -1,4 +1,6 @@
-﻿namespace Portfolio.Asp.Models.User
+﻿using Portfolio.Asp.Models.SocialLinks;
+
+namespace Portfolio.Asp.Models.User
 {
     public class Profile
     {
@@ -8,7 +10,12 @@
 
         // One-To-One კავშირი  
         public int UserId { get; set; }
-        public User User { get; set; }  
+        public User User { get; set; }
+
+
+        // One-To-Many კავშირი 
+        public List<SocialLink> links { get; set; }
+
 
 
 
