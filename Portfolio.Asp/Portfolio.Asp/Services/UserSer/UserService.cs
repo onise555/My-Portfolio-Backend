@@ -1,17 +1,13 @@
-﻿using System;
-using Portfolio.Asp.DTOS.User;
+﻿using Portfolio.Asp.DTOS.User;
+using Portfolio.Asp.Models.Users;
 using Portfolio.Asp.Repositories;
 using Portfolio.Asp.requests.User;
-using Portfolio.Asp.Models.Users;
-using UserModel = Portfolio.Asp.Models.Users;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Portfolio.Asp.Services.UserSer
 {
     public class UserService : IUserService
     {
-       private readonly IRepository<User> _repo;
-
+        private readonly IRepository<User> _repo;
 
         public UserService(IRepository<User> repo)
         {
@@ -20,40 +16,67 @@ namespace Portfolio.Asp.Services.UserSer
 
         public async Task Create(CreateUserRequest request)
         {
-            var user =new User()
+            var user = new User
             {
-                FullName =request.FullName, 
-                ProfileImage=request.ProfileImage,
-                ProfileVideo=request.ProfileVideo,
+                FullName = request.FullName,
+                ProfileImage = request.ProfileImage,
+                ProfileVideo = request.ProfileVideo,
             };
+
             await _repo.AddAsync(user);
-            return Ok(user);
-
         }
 
-        public async Task Create(CreateUserRequest request)
+        public async Task<List<UserDTO>> GetAllUser()
         {
-            throw new NotImplementedException();
+            var users = await _repo.GetAllAsync();
+
+            return users.Select(u => new UserDTO
+            {
+                Id = u.Id,
+                FullName = u.FullName,
+                ProfileImage = u.ProfileImage,
+                ProfileVideo = u.ProfileVideo
+            }).ToList();
         }
 
-        public Task Delete(int id)
+        public async Task<UserDTO?> GetById(int id)
         {
-            throw new NotImplementedException();
+            var user = await _repo.GetByIdAsync(id);
+
+            if (user == null)
+                return null;
+
+            return new UserDTO
+            {
+                Id = user.Id,
+                FullName = user.FullName,
+                ProfileImage = user.ProfileImage,
+                ProfileVideo = user.ProfileVideo
+            };
         }
 
-        public Task<List<UserDTO>> GetAllUser()
+        public async Task Update(UpdateUserRequest request)
         {
-            throw new NotImplementedException();
+            var user = await _repo.GetByIdAsync(request.Id);
+
+            if (user == null)
+                return;
+
+            user.FullName = request.FullName;
+            user.ProfileImage = request.ProfileImage;
+            user.ProfileVideo = request.ProfileVideo;
+
+            await _repo.UpdateAsync(user);
         }
 
-        public Task<UserDTO?> GetById(int id)
+        public async Task Delete(int id)
         {
-            throw new NotImplementedException();
-        }
+            var user = await _repo.GetByIdAsync(id);
 
-        public Task Update(UpdateUserRequest request)
-        {
-            throw new NotImplementedException();
+            if (user == null)
+                return;
+
+            await _repo.DeleteAsync(user);
         }
     }
 }
