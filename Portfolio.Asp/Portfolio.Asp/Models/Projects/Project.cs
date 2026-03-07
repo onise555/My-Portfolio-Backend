@@ -1,5 +1,5 @@
 ﻿using Portfolio.Asp.Models.User;
-using Portfolio.Asp.Models.Skills;
+using Portfolio.Asp.Skills;
 
 namespace Portfolio.Asp.Models.Projects
 {

@@ -1,7 +1,7 @@
 ﻿using Portfolio.Asp.Enum;
 using Portfolio.Asp.Models.User;
 
-
+namespace Portfolio.Asp.Skills
 {
     public class SoftSkills
     {

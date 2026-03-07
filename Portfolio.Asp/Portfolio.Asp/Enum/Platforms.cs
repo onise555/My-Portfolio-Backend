@@ -1,11 +1,5 @@
 ﻿public enum Platforms
 {
-    
-    
-    
-    
-    // Enum List
-
     GitHub = 1,
     LinkedIn = 2 ,
     Twitter = 3 ,

@@ -6,7 +6,6 @@ using Portfolio.Asp.Models.Skills;
 using Portfolio.Asp.Models.SocialLinks;
 using Portfolio.Asp.Models.WorkExperiences;
 
-
 namespace Portfolio.Asp.Models.User
 {
     public class Profile
@@ -21,25 +20,26 @@ namespace Portfolio.Asp.Models.User
 
 
 
-
-        // One-To-Many კავშირიები
-
         // One-To-Many კავშირი s
-
 
         public List<Project> projects { get; set; } = new List<Project>();
 
-        public List<Tools> tools { get; set; } = new List<Tools>();
+        public List<Tools> Tools { get; set; } = new List<Tools>();
 
         public List<SoftSkills> Skills { get; set; } = new List<SoftSkills>();
-        public List<WorkExperience> experiences { get; set; } = new List<WorkExperience>();
         public List<SocialLink> links { get; set; } = new List<SocialLink>();
         public List<language> languages { get; set; } = new List<language>();
 
         public List<Academy> academies { get; set; } =new List<Academy>();
 
         public List<Contact> contacts { get; set; } = new List<Contact>();
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> parent of 0e70da9 (Merge pull request #44 from onise555/develop)
+
+   
 
 
     }
