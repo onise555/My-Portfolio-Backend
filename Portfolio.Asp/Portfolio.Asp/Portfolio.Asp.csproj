@@ -7,13 +7,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="model\**" />
+    <Content Remove="model\**" />
+    <EmbeddedResource Remove="model\**" />
+    <None Remove="model\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Controllers\" />
-    <Folder Include="Models\SocialLink\" />
-    <Folder Include="model\" />
+    <Folder Include="NewFolder\" />
   </ItemGroup>
 
 </Project>
