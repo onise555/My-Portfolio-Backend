@@ -18,36 +18,24 @@ namespace Portfolio.Asp.Data
         public DataContext(DbContextOptions<DataContext> options) : base(options) { }   
 
 
+
         public DbSet<User> Users { get; set; }
-
         public DbSet<Profile> Profiles { get; set; }
-
- 
         public DbSet<ProjectEntity> Projects { get; set; }
-
         public DbSet<ProjectCategories> ProjectCategories { get; set; }
-
         public DbSet<ProjectMedia> ProjectMedia { get; set; }   
         public DbSet<ProjectSubCategories> ProjectSubCategories { get; set; }
-
         public DbSet<language> languages { get; set; }  
-
         public DbSet<Contact> contacts  { get; set; }
-
         public DbSet<SoftSkills> SoftSkills { get; set; }
         public DbSet<Tools> Tools { get; set; } 
-
         public DbSet<Academy> academies { get; set; }   
         public DbSet<Education> educations { get; set; }
         public DbSet<EducationSkill> educationsSkill { get; set; }
-
         public DbSet<WorkExperiation> workExperiations { get; set; }
         public DbSet<WorkExperiationSkills> WorkExperiationSkills { get; set; }
-
         public DbSet<SocialLink> socialLinks { get; set; }
 
 
-
-    
     }
 }
