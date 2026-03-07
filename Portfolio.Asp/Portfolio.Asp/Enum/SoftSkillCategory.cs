@@ -2,6 +2,10 @@
 {
     public enum SoftSkillCategory
     {
+        
+        
+        // Enum List
+
         Mindset = 1,
         Collaboration = 2,
         Storytelling = 3,
