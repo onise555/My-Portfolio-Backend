@@ -2,7 +2,10 @@
 using Portfolio.Asp.Models.User;
 
 
+
 namespace Portfolio.Asp.Models.Skills
+
+
 {
 
     public class SoftSkills

@@ -2,7 +2,9 @@
 using Portfolio.Asp.Models.Projects;
 using Portfolio.Asp.Models.User;
 
+
 namespace Portfolio.Asp.Models.Skills
+
 {
 
 
@@ -13,8 +15,8 @@ namespace Portfolio.Asp.Models.Skills
         public string Name { get; set; }
         public string Badge { get; set; }
 
-
         public ToolCategory ToolCategory { get; set; }
+
 
         //Many-To-Many კავშირები
 
@@ -23,6 +25,10 @@ namespace Portfolio.Asp.Models.Skills
 
         public List<Profile> Profile { get; set; } = new List<Profile>();
         public List<Project> projects { get; set; } = new List<Project>();
+
+        public List<Profile > Profile { get; set; } =  new List<Profile>(); 
+        public List<Project> projects { get; set; } = new List<Project> ();    
+
 
     }
 }
