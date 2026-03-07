@@ -1,4 +1,5 @@
-﻿using Portfolio.Asp.Models.languages;
+﻿using Portfolio.Asp.Models.Academies;
+using Portfolio.Asp.Models.languages;
 using Portfolio.Asp.Models.SocialLinks;
 
 namespace Portfolio.Asp.Models.User
@@ -18,6 +19,8 @@ namespace Portfolio.Asp.Models.User
         public List<SocialLink> links { get; set; } = new List<SocialLink>();
 
         public List<language> languages { get; set; } = new List<language>();
+
+        public List<Academy> academies { get; set; } =new List<Academy>();
 
 
 
