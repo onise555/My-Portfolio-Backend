@@ -5,8 +5,6 @@ using Portfolio.Asp.Models.Projects;
 using Portfolio.Asp.Models.Skills ;
 using Portfolio.Asp.Models.SocialLinks;
 using Portfolio.Asp.Models.WorkExperiations;
-using Portfolio.Asp.Models.WorkExperience;
-using Portfolio.Asp.Models.WorkExperiencess;
 
 
 namespace Portfolio.Asp.Models.User
