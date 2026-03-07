@@ -1,4 +1,6 @@
-﻿using Portfolio.Asp.Models.SocialLinks;
+﻿using Portfolio.Asp.Models.Contacts;
+using Portfolio.Asp.Models.languages;
+using Portfolio.Asp.Models.SocialLinks;
 
 namespace Portfolio.Asp.Models.User
 {
@@ -14,10 +16,13 @@ namespace Portfolio.Asp.Models.User
 
 
         // One-To-Many კავშირი 
-        public List<SocialLink> links { get; set; }
+        public List<SocialLink> links { get; set; } = new List<SocialLink>();
 
+        // One-To-Many კავშირი 
+        public List<language> languages { get; set; } = new List<language>();
 
-
+        // One-To-Many კავშირი 
+        public List<Contact> contacts { get; set; }
 
     }
 }
