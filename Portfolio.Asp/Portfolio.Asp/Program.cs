@@ -21,7 +21,7 @@ builder.Services.AddCors(options =>
 
 // მონაცემთა ბაზა
 builder.Services.AddDbContext<DataContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
 var app = builder.Build();
 
