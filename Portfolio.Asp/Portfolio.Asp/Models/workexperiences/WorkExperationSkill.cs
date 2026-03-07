@@ -1,3 +1,5 @@
+using Portfolio.Asp.Models.WorkExperiences;
+
 namespace Portfolio.Asp.Models.WorkExperiencess;
 
 public class WorkExperationSkill

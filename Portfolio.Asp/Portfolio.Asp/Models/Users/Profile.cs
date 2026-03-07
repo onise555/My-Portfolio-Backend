@@ -4,6 +4,7 @@ using Portfolio.Asp.Models.languages;
 using Portfolio.Asp.Models.Projects;
 using Portfolio.Asp.Models.Skills;
 using Portfolio.Asp.Models.SocialLinks;
+using Portfolio.Asp.Models.WorkExperiences;
 
 
 namespace Portfolio.Asp.Models.User
@@ -38,8 +39,7 @@ namespace Portfolio.Asp.Models.User
         public List<Academy> academies { get; set; } =new List<Academy>();
 
         public List<Contact> contacts { get; set; } = new List<Contact>();
-        public List<WorkExperience> WorkExperiences { get; set; } = new List<WorkExperience>();
-
+    
 
 
     }
