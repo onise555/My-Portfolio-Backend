@@ -1,5 +1,5 @@
 ﻿using Portfolio.Asp.Enum;
-using Portfolio.Asp.Models.User;
+using Portfolio.Asp.Models.Users;
 
 namespace Portfolio.Asp.Models.WorkExperiations
 {

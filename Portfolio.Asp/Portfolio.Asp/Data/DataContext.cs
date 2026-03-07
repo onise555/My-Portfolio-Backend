@@ -6,7 +6,7 @@ using Portfolio.Asp.Models.languages;
 using Portfolio.Asp.Models.Projects;
 using Portfolio.Asp.Models.Skills;
 using Portfolio.Asp.Models.SocialLinks;
-using Portfolio.Asp.Models.User;
+using Portfolio.Asp.Models.Users;
 using Portfolio.Asp.Models.WorkExperiations;
 using ProjectEntity = Portfolio.Asp.Models.Projects.Project;
 
