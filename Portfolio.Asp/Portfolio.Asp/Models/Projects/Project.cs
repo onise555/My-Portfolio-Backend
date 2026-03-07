@@ -1,5 +1,6 @@
-﻿using Portfolio.Asp.Models.User;
-using Portfolio.Asp.Skills;
+﻿using Portfolio.Asp.Models.Skills;
+using Portfolio.Asp.Models.User;
+using Portfolio.Asp.Models.Skills;
 
 namespace Portfolio.Asp.Models.Projects
 {
@@ -26,8 +27,7 @@ namespace Portfolio.Asp.Models.Projects
 
         public Profile Profile { get; set; }
 
-        public List<Tools> Tools { get; set; } = new List<Tools>();
-
+       public List<Tools> tools { get; set; } = new List<Tools>();
 
 
 
