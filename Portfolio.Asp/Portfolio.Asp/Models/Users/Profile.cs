@@ -5,8 +5,6 @@ using Portfolio.Asp.Models.Projects;
 using Portfolio.Asp.Models.Skills;
 using Portfolio.Asp.Models.SocialLinks;
 
-using Portfolio.Asp.Models.WorkExperiences;
-
 
 namespace Portfolio.Asp.Models.User
 {
@@ -22,7 +20,12 @@ namespace Portfolio.Asp.Models.User
 
 
 
+
         // One-To-Many კავშირიები
+
+        // One-To-Many კავშირი s
+
+
         public List<Project> projects { get; set; } = new List<Project>();
 
         public List<Tools> tools { get; set; } = new List<Tools>();
