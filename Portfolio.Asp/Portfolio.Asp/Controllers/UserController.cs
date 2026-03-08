@@ -18,11 +18,11 @@ namespace Portfolio.Asp.Controllers
         }
 
         [HttpPost("Add-User")]
-        public async Task<IActionResult> Create(CreateUserRequest request)
+        public async Task<IActionResult> Create([FromForm] CreateUserRequest request)
         {
             await _service.Create(request);
+            return Ok();
 
-            return Ok("User created");
         }
 
         [HttpGet("Get-All")]

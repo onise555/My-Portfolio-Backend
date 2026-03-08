@@ -9,18 +9,18 @@ namespace Portfolio.Asp.Services.UserSer
     public class UserService : IUserService
     {
         private readonly IRepository<User> _repo;
-        private readonly IConfiguration _config;
+        private readonly S3Service _s3;
 
-        public UserService(IRepository<User> repo, IConfiguration config)
+        public UserService(IRepository<User> repo, S3Service s3)
         {
             _repo = repo;
-            _config = config;
+            _s3 = s3;
         }
 
         public async Task Create(CreateUserRequest request)
         {
-            var imageUrl = await FileUploadHelper.UploadImg(request.ProfileImage, "users/images", _config);
-            var videoUrl = await FileUploadHelper.UploadImg(request.ProfileVideo, "users/videos", _config);
+            var imageUrl = await _s3.UploadFileAsync(request.ProfileImage, "users/images");
+            var videoUrl = await _s3.UploadFileAsync(request.ProfileVideo, "users/videos");
 
             var user = new User
             {
