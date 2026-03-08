@@ -19,26 +19,52 @@ namespace Portfolio.Asp.FileUploader
             var s3Config = new AmazonS3Config
             {
                 ServiceURL = serviceUrl,
-                ForcePathStyle = true
+                ForcePathStyle = true,
+                UseHttp = false
             };
 
             using var client = new AmazonS3Client(credentials, s3Config);
+
             var fileKey = $"{folder}/{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
 
+            // ContentType - safe მნიშვნელობა extension-ის მიხედვით
+            var contentType = GetSafeContentType(file.FileName, file.ContentType);
+
             using var stream = file.OpenReadStream();
+
             var uploadRequest = new TransferUtilityUploadRequest
             {
                 InputStream = stream,
                 Key = fileKey,
                 BucketName = bucketName,
-                ContentType = file.ContentType,
-                CannedACL = S3CannedACL.PublicRead 
+                ContentType = contentType,
+                CannedACL = S3CannedACL.PublicRead,
+                AutoCloseStream = false
             };
 
             var transferUtility = new TransferUtility(client);
             await transferUtility.UploadAsync(uploadRequest);
 
             return $"{serviceUrl.TrimEnd('/')}/{bucketName}/{fileKey}";
+        }
+
+        private static string GetSafeContentType(string fileName, string originalContentType)
+        {
+            var ext = Path.GetExtension(fileName)?.ToLowerInvariant();
+
+            return ext switch
+            {
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".gif" => "image/gif",
+                ".webp" => "image/webp",
+                ".mp4" => "video/mp4",
+                ".mov" => "video/quicktime",
+                ".avi" => "video/x-msvideo",
+                ".mkv" => "video/x-matroska",
+                ".webm" => "video/webm",
+                _ => originalContentType ?? "application/octet-stream"
+            };
         }
     }
 }
