@@ -21,15 +21,15 @@ namespace Portfolio.Asp.Controllers
         public async Task<IActionResult> Create([FromForm] CreateUserRequest request)
         {
             await _service.Create(request);
-            return Ok();
+            return Ok(User);
 
         }
+
 
         [HttpGet("Get-All")]
         public async Task<IActionResult> GetAll()
         {
             var users = await _service.GetAllUser();
-
             return Ok(users);
         }
 
