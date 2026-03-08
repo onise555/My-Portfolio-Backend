@@ -32,7 +32,7 @@ namespace Portfolio.Asp.FileUploader
                 Key = fileKey,
                 BucketName = bucketName,
                 ContentType = file.ContentType,
-                CannedACL = S3CannedACL.PublicRead // მუდმივი წვდომისთვის
+                CannedACL = S3CannedACL.PublicRead 
             };
 
             var transferUtility = new TransferUtility(client);
