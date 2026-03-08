@@ -1,5 +1,4 @@
 ﻿using Amazon.S3;
-using Amazon.S3.Model;
 using Amazon.S3.Transfer;
 using Amazon.Runtime;
 
@@ -15,7 +14,6 @@ namespace Portfolio.Asp.Services
         public S3Service(IConfiguration config)
         {
             _config = config;
-
             var accessKey = _config["S3Config:AccessKey"];
             var secretKey = _config["S3Config:SecretKey"];
             _bucketName = _config["S3Config:BucketName"] ?? "";
@@ -25,33 +23,55 @@ namespace Portfolio.Asp.Services
             var s3Config = new AmazonS3Config
             {
                 ServiceURL = _serviceUrl,
-                ForcePathStyle = true
+                ForcePathStyle = true,
+                UseHttp = false
             };
 
             _s3Client = new AmazonS3Client(credentials, s3Config);
         }
 
-        public async Task<string?> UploadFileAsync(IFormFile file, string folder = "portfolio")
+        public async Task<string?> UploadFileAsync(IFormFile? file, string folder = "portfolio")
         {
             if (file == null || file.Length == 0) return null;
 
             var fileKey = $"{folder}/{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+            var contentType = GetSafeContentType(file.FileName, file.ContentType);
 
             using var stream = file.OpenReadStream();
+
             var uploadRequest = new TransferUtilityUploadRequest
             {
                 InputStream = stream,
                 Key = fileKey,
                 BucketName = _bucketName,
-                ContentType = file.ContentType,
-                CannedACL = S3CannedACL.PublicRead // ხდის ფაილს მუდმივად საჯაროს
+                ContentType = contentType,
+                CannedACL = S3CannedACL.PublicRead,
+                AutoCloseStream = false
             };
 
             var fileTransferUtility = new TransferUtility(_s3Client);
             await fileTransferUtility.UploadAsync(uploadRequest);
 
-            // აბრუნებს მუდმივ ლინკს
             return $"{_serviceUrl.TrimEnd('/')}/{_bucketName}/{fileKey}";
+        }
+
+        private static string GetSafeContentType(string fileName, string originalContentType)
+        {
+            var ext = Path.GetExtension(fileName)?.ToLowerInvariant();
+
+            return ext switch
+            {
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".gif" => "image/gif",
+                ".webp" => "image/webp",
+                ".mp4" => "video/mp4",
+                ".mov" => "video/quicktime",
+                ".avi" => "video/x-msvideo",
+                ".mkv" => "video/x-matroska",
+                ".webm" => "video/webm",
+                _ => originalContentType ?? "application/octet-stream"
+            };
         }
     }
 }

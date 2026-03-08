@@ -26,8 +26,6 @@ namespace Portfolio.Asp.FileUploader
             using var client = new AmazonS3Client(credentials, s3Config);
 
             var fileKey = $"{folder}/{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-
-            // ContentType - safe მნიშვნელობა extension-ის მიხედვით
             var contentType = GetSafeContentType(file.FileName, file.ContentType);
 
             using var stream = file.OpenReadStream();
