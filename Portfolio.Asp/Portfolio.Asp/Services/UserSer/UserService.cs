@@ -1,4 +1,5 @@
 ﻿using Portfolio.Asp.DTOS.User;
+using Portfolio.Asp.FileUploader;
 using Portfolio.Asp.Models.Users;
 using Portfolio.Asp.Repositories;
 using Portfolio.Asp.requests.User;
@@ -8,19 +9,24 @@ namespace Portfolio.Asp.Services.UserSer
     public class UserService : IUserService
     {
         private readonly IRepository<User> _repo;
+        private readonly IConfiguration _config;
 
-        public UserService(IRepository<User> repo)
+        public UserService(IRepository<User> repo, IConfiguration config)
         {
             _repo = repo;
+            _config = config;
         }
 
         public async Task Create(CreateUserRequest request)
         {
+            var imageUrl = await FileUploadHelper.UploadImg(request.ProfileImage, "users/images", _config);
+            var videoUrl = await FileUploadHelper.UploadImg(request.ProfileVideo, "users/videos", _config);
+
             var user = new User
             {
                 FullName = request.FullName,
-                ProfileImage = request.ProfileImage,
-                ProfileVideo = request.ProfileVideo,
+                ProfileImage = imageUrl,
+                ProfileVideo = videoUrl
             };
 
             await _repo.AddAsync(user);
