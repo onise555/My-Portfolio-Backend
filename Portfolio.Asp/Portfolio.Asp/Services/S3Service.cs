@@ -21,9 +21,9 @@ namespace Portfolio.Asp.Services
             var s3Config = new AmazonS3Config
             {
                 ServiceURL = _serviceUrl,
-                ForcePathStyle = true,
+                // შეცვლილია: Virtual-hosted-style მოითხოვს, რომ ForcePathStyle იყოს false
+                ForcePathStyle = false,
                 UseHttp = false,
-                SignatureVersion = "4"
             };
 
             _s3Client = new AmazonS3Client(credentials, s3Config);
@@ -44,13 +44,16 @@ namespace Portfolio.Asp.Services
                 Key = fileKey,
                 InputStream = stream,
                 ContentType = contentType,
-                CannedACL = S3CannedACL.PublicRead,
+                CannedACL = S3CannedACL.PublicRead, // დარწმუნდი, რომ ბაქეტზე ACL ჩართულია
                 DisablePayloadSigning = true
             };
 
             await _s3Client.PutObjectAsync(putRequest);
 
-            return $"{_serviceUrl.TrimEnd('/')}/{_bucketName}/{fileKey}";
+            // შეცვლილია: URL-ის გენერაცია Virtual-hosted ფორმატში
+            // შედეგი იქნება: https://bucket-name.t3.storageapi.dev/folder/file.png
+            var cleanServiceUrl = _serviceUrl.Replace("https://", "").TrimEnd('/');
+            return $"https://{_bucketName}.{cleanServiceUrl}/{fileKey}";
         }
 
         private static string GetSafeContentType(string fileName, string originalContentType)
