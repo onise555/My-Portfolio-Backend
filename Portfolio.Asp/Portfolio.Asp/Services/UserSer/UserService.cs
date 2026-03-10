@@ -1,88 +1,52 @@
-﻿using Portfolio.Asp.DTOS.User;
-using Portfolio.Asp.FileUploader;
-using Portfolio.Asp.Models.Users;
-using Portfolio.Asp.Repositories;
-using Portfolio.Asp.requests.User;
+﻿using Amazon.S3;
+using Amazon.S3.Transfer;
+using Amazon.Runtime;
 
-namespace Portfolio.Asp.Services.UserSer
+namespace Portfolio.Asp.FileUploader
 {
-    public class UserService : IUserService
+    public static class FileUploadHelper
     {
-        private readonly IRepository<User> _repo;
-        private readonly S3Service _s3;
-
-        public UserService(IRepository<User> repo, S3Service s3)
+        public static async Task<string?> UploadImg(IFormFile? file, IConfiguration config)
         {
-            _repo = repo;
-            _s3 = s3;
-        }
+            if (file == null || file.Length == 0) return null;
 
-        public async Task Create(CreateUserRequest request)
-        {
-            var imageUrl = await _s3.UploadFileAsync(request.ProfileImage, "users/images");
-            var videoUrl = await _s3.UploadFileAsync(request.ProfileVideo, "users/videos");
+            var accessKey = config["AWS_ACCESS_KEY_ID"] ?? config["S3Config:AccessKey"];
+            var secretKey = config["AWS_SECRET_ACCESS_KEY"] ?? config["S3Config:SecretKey"];
 
-            var user = new User
+            // ბაქეტის სახელი modular-briefcase
+            var bucketName = config["AWS_S3_BUCKET_NAME"] ?? config["S3Config:BucketName"] ?? "modular-briefcase";
+
+            // სერვისის URL storage.dev ფორმატში
+            var serviceUrl = config["AWS_ENDPOINT_URL"] ?? config["S3Config:ServiceUrl"] ?? "https://t3.storage.dev";
+
+            var credentials = new BasicAWSCredentials(accessKey, secretKey);
+            var s3Config = new AmazonS3Config
             {
-                FullName = request.FullName,
-                ProfileImage = imageUrl,
-                ProfileVideo = videoUrl
+                ServiceURL = serviceUrl,
+                ForcePathStyle = false,
+                UseHttp = false
             };
 
-            await _repo.AddAsync(user);
-        }
+            using var client = new AmazonS3Client(credentials, s3Config);
+            var fileKey = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
 
-        public async Task<List<UserDTO>> GetAllUser()
-        {
-            var users = await _repo.GetAllAsync();
-
-            return users.Select(u => new UserDTO
+            using var stream = file.OpenReadStream();
+            var uploadRequest = new TransferUtilityUploadRequest
             {
-                Id = u.Id,
-                FullName = u.FullName,
-                ProfileImage = u.ProfileImage,
-                ProfileVideo = u.ProfileVideo
-            }).ToList();
-        }
-
-        public async Task<UserDTO?> GetById(int id)
-        {
-            var user = await _repo.GetByIdAsync(id);
-
-            if (user == null)
-                return null;
-
-            return new UserDTO
-            {
-                Id = user.Id,
-                FullName = user.FullName,
-                ProfileImage = user.ProfileImage,
-                ProfileVideo = user.ProfileVideo
+                InputStream = stream,
+                Key = fileKey,
+                BucketName = bucketName,
+                ContentType = file.ContentType,
+                CannedACL = S3CannedACL.PublicRead, // ჩართული ACL-ის გამოყენება
+                AutoCloseStream = false
             };
-        }
 
-        public async Task Update(UpdateUserRequest request)
-        {
-            var user = await _repo.GetByIdAsync(request.Id);
+            var transferUtility = new TransferUtility(client);
+            await transferUtility.UploadAsync(uploadRequest);
 
-            if (user == null)
-                return;
-
-            user.FullName = request.FullName;
-            user.ProfileImage = request.ProfileImage;
-            user.ProfileVideo = request.ProfileVideo;
-
-            await _repo.UpdateAsync(user);
-        }
-
-        public async Task Delete(int id)
-        {
-            var user = await _repo.GetByIdAsync(id);
-
-            if (user == null)
-                return;
-
-            await _repo.DeleteAsync(user);
+            // ლინკი: https://modular-briefcase.t3.storage.dev/filename.ext
+            var host = serviceUrl.Replace("https://", "").TrimEnd('/');
+            return $"https://{bucketName}.{host}/{fileKey}";
         }
     }
 }
