@@ -21,7 +21,7 @@ namespace Portfolio.Asp.Controllers
         public async Task<IActionResult> Create([FromForm] CreateUserRequest request)
         {
             await _service.Create(request);
-            return Ok(User);
+            return Ok(request);
 
         }
 
@@ -30,7 +30,7 @@ namespace Portfolio.Asp.Controllers
         public async Task<IActionResult> GetAll()
         {
             var users = await _service.GetAllUser();
-            return Ok();
+            return Ok(users);
         }
 
     }
