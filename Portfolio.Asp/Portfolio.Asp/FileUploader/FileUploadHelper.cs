@@ -10,24 +10,24 @@ namespace Portfolio.Asp.FileUploader
         {
             if (file == null || file.Length == 0) return null;
 
-            // Railway-ს ცვლადების პრიორიტეტი (ავტომატური დაკავშირებისთვის)
+            // Railway-ს ცვლადების წაკითხვა
+            // დარწმუნდი, რომ Railway-ზე AWS_S3_BUCKET_NAME არის "images-55"
             var accessKey = config["AWS_ACCESS_KEY_ID"] ?? config["S3Config:AccessKey"];
             var secretKey = config["AWS_SECRET_ACCESS_KEY"] ?? config["S3Config:SecretKey"];
-            var serviceUrl = config["AWS_ENDPOINT_URL"] ?? config["S3Config:ServiceUrl"] ?? "";
-            var bucketName = config["AWS_S3_BUCKET_NAME"] ?? config["S3Config:BucketName"];
+            var serviceUrl = config["AWS_ENDPOINT_URL"] ?? config["S3Config:ServiceUrl"] ?? "https://t3.storage.dev";
+            var bucketName = config["AWS_S3_BUCKET_NAME"] ?? config["S3Config:BucketName"] ?? "images-55";
 
             var credentials = new BasicAWSCredentials(accessKey, secretKey);
             var s3Config = new AmazonS3Config
             {
                 ServiceURL = serviceUrl,
-                // Virtual-hosted URL-ისთვის აუცილებელია false
-                ForcePathStyle = false,
+                ForcePathStyle = false, // Virtual-hosted სტილისთვის
                 UseHttp = false
             };
 
             using var client = new AmazonS3Client(credentials, s3Config);
 
-            // უნიკალური სახელი ფაილისთვის
+            // ფაილის უნიკალური გზა (Path)
             var fileKey = $"{folder}/{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
             var contentType = GetSafeContentType(file.FileName, file.ContentType);
 
@@ -39,14 +39,15 @@ namespace Portfolio.Asp.FileUploader
                 Key = fileKey,
                 BucketName = bucketName,
                 ContentType = contentType,
-                CannedACL = S3CannedACL.PublicRead, // საჯარო წვდომისთვის
+                CannedACL = S3CannedACL.PublicRead, // აუცილებელია საჯარო ლინკისთვის
                 AutoCloseStream = false
             };
 
             var transferUtility = new TransferUtility(client);
             await transferUtility.UploadAsync(uploadRequest);
 
-            // ვაწყობთ საბოლოო ლინკს: https://bucket.service/key
+            // ვაწყობთ ზუსტად იმ ლინკს, რომელიც შენთან მუშაობს:
+            // https://images-55.t3.storage.dev/users/images/filename.mp4
             var host = serviceUrl.Replace("https://", "").TrimEnd('/');
             return $"https://{bucketName}.{host}/{fileKey}";
         }
