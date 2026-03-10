@@ -12,22 +12,21 @@ namespace Portfolio.Asp.Services
 
         public S3Service(IConfiguration config)
         {
-            // Railway-ს Variables ჩანართიდან იღებს მნიშვნელობებს
+            // Railway-ს ცვლადების პრიორიტეტი. 
+            // დარწმუნდი, რომ Railway-ზე AWS_S3_BUCKET_NAME არის "images-55"
             var accessKey = config["AWS_ACCESS_KEY_ID"] ?? config["S3Config:AccessKey"];
             var secretKey = config["AWS_SECRET_ACCESS_KEY"] ?? config["S3Config:SecretKey"];
-
-            // აქ მნიშვნელოვანია: გამოიყენე ზუსტად ის სახელი, რომელიც მუშა ლინკშია (images-55)
-            _bucketName = config["AWS_S3_BUCKET_NAME"] ?? config["S3Config:BucketName"] ?? "images-55";
-
-            // ენდპოინტი - შენი მუშა ლინკის მიხედვით: https://t3.storage.dev
+            _bucketName = config["AWS_S3_BUCKET_NAME"] ?? config["S3Config:BucketName"] ?? "";
+            
+            // ვიყენებთ storage.dev-ს, რადგან შენს მუშა ლინკში ასეა
             _serviceUrl = config["AWS_ENDPOINT_URL"] ?? config["S3Config:ServiceUrl"] ?? "https://t3.storage.dev";
 
             var credentials = new BasicAWSCredentials(accessKey, secretKey);
             var s3Config = new AmazonS3Config
             {
                 ServiceURL = _serviceUrl,
-                ForcePathStyle = false, // აუცილებელია, რომ ლინკი bucket.endpoint ფორმატში იყოს
-                UseHttp = false
+                ForcePathStyle = false, 
+                UseHttp = false,
             };
 
             _s3Client = new AmazonS3Client(credentials, s3Config);
@@ -37,8 +36,8 @@ namespace Portfolio.Asp.Services
         {
             if (file == null || file.Length == 0) return null;
 
-            // უნიკალური ID ფაილისთვის
             var fileKey = $"{folder}/{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+            var contentType = GetSafeContentType(file.FileName, file.ContentType);
 
             using var stream = file.OpenReadStream();
 
@@ -47,18 +46,31 @@ namespace Portfolio.Asp.Services
                 BucketName = _bucketName,
                 Key = fileKey,
                 InputStream = stream,
-                ContentType = file.ContentType,
-                CannedACL = S3CannedACL.PublicRead, // ააქტიურებს საჯარო წვდომას
+                ContentType = contentType,
+                CannedACL = S3CannedACL.PublicRead, 
                 DisablePayloadSigning = true
             };
 
-            // ატვირთვა S3-ზე
             await _s3Client.PutObjectAsync(putRequest);
 
-            // ვაწყობთ ზუსტად იმ მუშა ლინკს, რომელიც მომწერე
-            // შედეგი: https://images-55.t3.storage.dev/users/images/filename.mp4
-            var host = _serviceUrl.Replace("https://", "").TrimEnd('/');
-            return $"https://{_bucketName}.{host}/{fileKey}";
+            // ლინკის აწყობა ზუსტად იმ ფორმატში, რაც შენთან მუშაობს:
+            // https://images-55.t3.storage.dev/users/images/სახელი.png
+            var cleanUrl = _serviceUrl.Replace("https://", "").TrimEnd('/');
+            return $"https://{_bucketName}.{cleanUrl}/{fileKey}";
+        }
+
+        private static string GetSafeContentType(string fileName, string originalContentType)
+        {
+            var ext = Path.GetExtension(fileName)?.ToLowerInvariant();
+            return ext switch
+            {
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".gif" => "image/gif",
+                ".webp" => "image/webp",
+                ".mp4" => "video/mp4",
+                _ => originalContentType ?? "application/octet-stream"
+            };
         }
     }
 }
