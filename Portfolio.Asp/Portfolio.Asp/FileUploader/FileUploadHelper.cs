@@ -10,22 +10,24 @@ namespace Portfolio.Asp.FileUploader
         {
             if (file == null || file.Length == 0) return null;
 
-            var accessKey = config["S3Config:AccessKey"];
-            var secretKey = config["S3Config:SecretKey"];
-            var serviceUrl = config["S3Config:ServiceUrl"] ?? "";
-            var bucketName = config["S3Config:BucketName"];
+            // Railway-ს ცვლადების პრიორიტეტი (ავტომატური დაკავშირებისთვის)
+            var accessKey = config["AWS_ACCESS_KEY_ID"] ?? config["S3Config:AccessKey"];
+            var secretKey = config["AWS_SECRET_ACCESS_KEY"] ?? config["S3Config:SecretKey"];
+            var serviceUrl = config["AWS_ENDPOINT_URL"] ?? config["S3Config:ServiceUrl"] ?? "";
+            var bucketName = config["AWS_S3_BUCKET_NAME"] ?? config["S3Config:BucketName"];
 
             var credentials = new BasicAWSCredentials(accessKey, secretKey);
             var s3Config = new AmazonS3Config
             {
                 ServiceURL = serviceUrl,
-                // შეცვლილია: Tusky-სთვის და Virtual-hosted URL-ისთვის უნდა იყოს false
+                // Virtual-hosted URL-ისთვის აუცილებელია false
                 ForcePathStyle = false,
                 UseHttp = false
             };
 
             using var client = new AmazonS3Client(credentials, s3Config);
 
+            // უნიკალური სახელი ფაილისთვის
             var fileKey = $"{folder}/{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
             var contentType = GetSafeContentType(file.FileName, file.ContentType);
 
@@ -37,22 +39,21 @@ namespace Portfolio.Asp.FileUploader
                 Key = fileKey,
                 BucketName = bucketName,
                 ContentType = contentType,
-                CannedACL = S3CannedACL.PublicRead,
+                CannedACL = S3CannedACL.PublicRead, // საჯარო წვდომისთვის
                 AutoCloseStream = false
             };
 
             var transferUtility = new TransferUtility(client);
             await transferUtility.UploadAsync(uploadRequest);
 
-            // შეცვლილია: URL ფორმატი -> https://bucket.service/key
-            var cleanServiceUrl = serviceUrl.Replace("https://", "").TrimEnd('/');
-            return $"https://{bucketName}.{cleanServiceUrl}/{fileKey}";
+            // ვაწყობთ საბოლოო ლინკს: https://bucket.service/key
+            var host = serviceUrl.Replace("https://", "").TrimEnd('/');
+            return $"https://{bucketName}.{host}/{fileKey}";
         }
 
         private static string GetSafeContentType(string fileName, string originalContentType)
         {
             var ext = Path.GetExtension(fileName)?.ToLowerInvariant();
-
             return ext switch
             {
                 ".jpg" or ".jpeg" => "image/jpeg",
@@ -60,10 +61,6 @@ namespace Portfolio.Asp.FileUploader
                 ".gif" => "image/gif",
                 ".webp" => "image/webp",
                 ".mp4" => "video/mp4",
-                ".mov" => "video/quicktime",
-                ".avi" => "video/x-msvideo",
-                ".mkv" => "video/x-matroska",
-                ".webm" => "video/webm",
                 _ => originalContentType ?? "application/octet-stream"
             };
         }
