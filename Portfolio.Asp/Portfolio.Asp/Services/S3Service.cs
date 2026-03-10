@@ -1,30 +1,29 @@
 ﻿using Amazon.S3;
-using Amazon.S3.Transfer;
+using Amazon.S3.Model;
 using Amazon.Runtime;
 
 namespace Portfolio.Asp.Services
 {
     public class S3Service
     {
-        private readonly IConfiguration _config;
         private readonly IAmazonS3 _s3Client;
         private readonly string _bucketName;
         private readonly string _serviceUrl;
 
         public S3Service(IConfiguration config)
         {
-            _config = config;
-            var accessKey = _config["S3Config:AccessKey"];
-            var secretKey = _config["S3Config:SecretKey"];
-            _bucketName = _config["S3Config:BucketName"] ?? "";
-            _serviceUrl = _config["S3Config:ServiceUrl"] ?? "";
+            var accessKey = config["S3Config:AccessKey"];
+            var secretKey = config["S3Config:SecretKey"];
+            _bucketName = config["S3Config:BucketName"] ?? "";
+            _serviceUrl = config["S3Config:ServiceUrl"] ?? "";
 
             var credentials = new BasicAWSCredentials(accessKey, secretKey);
             var s3Config = new AmazonS3Config
             {
                 ServiceURL = _serviceUrl,
                 ForcePathStyle = true,
-                UseHttp = false
+                UseHttp = false,
+                SignatureVersion = "4"
             };
 
             _s3Client = new AmazonS3Client(credentials, s3Config);
@@ -39,18 +38,17 @@ namespace Portfolio.Asp.Services
 
             using var stream = file.OpenReadStream();
 
-            var uploadRequest = new TransferUtilityUploadRequest
+            var putRequest = new PutObjectRequest
             {
-                InputStream = stream,
-                Key = fileKey,
                 BucketName = _bucketName,
+                Key = fileKey,
+                InputStream = stream,
                 ContentType = contentType,
                 CannedACL = S3CannedACL.PublicRead,
-                AutoCloseStream = false
+                DisablePayloadSigning = true
             };
 
-            var fileTransferUtility = new TransferUtility(_s3Client);
-            await fileTransferUtility.UploadAsync(uploadRequest);
+            await _s3Client.PutObjectAsync(putRequest);
 
             return $"{_serviceUrl.TrimEnd('/')}/{_bucketName}/{fileKey}";
         }
