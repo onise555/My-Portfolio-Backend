@@ -19,7 +19,8 @@ namespace Portfolio.Asp.FileUploader
             var s3Config = new AmazonS3Config
             {
                 ServiceURL = serviceUrl,
-                ForcePathStyle = true,
+                // შეცვლილია: Tusky-სთვის და Virtual-hosted URL-ისთვის უნდა იყოს false
+                ForcePathStyle = false,
                 UseHttp = false
             };
 
@@ -43,7 +44,9 @@ namespace Portfolio.Asp.FileUploader
             var transferUtility = new TransferUtility(client);
             await transferUtility.UploadAsync(uploadRequest);
 
-            return $"{serviceUrl.TrimEnd('/')}/{bucketName}/{fileKey}";
+            // შეცვლილია: URL ფორმატი -> https://bucket.service/key
+            var cleanServiceUrl = serviceUrl.Replace("https://", "").TrimEnd('/');
+            return $"https://{bucketName}.{cleanServiceUrl}/{fileKey}";
         }
 
         private static string GetSafeContentType(string fileName, string originalContentType)
