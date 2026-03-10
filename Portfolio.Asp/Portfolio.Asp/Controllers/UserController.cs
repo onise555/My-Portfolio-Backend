@@ -30,7 +30,7 @@ namespace Portfolio.Asp.Controllers
         public async Task<IActionResult> GetAll()
         {
             var users = await _service.GetAllUser();
-            return Ok(users);
+            return Ok();
         }
 
     }
