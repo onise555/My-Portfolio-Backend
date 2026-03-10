@@ -12,17 +12,17 @@ namespace Portfolio.Asp.Services
 
         public S3Service(IConfiguration config)
         {
-            var accessKey = config["S3Config:AccessKey"];
-            var secretKey = config["S3Config:SecretKey"];
-            _bucketName = config["S3Config:BucketName"] ?? "";
-            _serviceUrl = config["S3Config:ServiceUrl"] ?? "";
+            // Railway-ს ცვლადების პრიორიტეტი
+            var accessKey = config["AWS_ACCESS_KEY_ID"] ?? config["S3Config:AccessKey"];
+            var secretKey = config["AWS_SECRET_ACCESS_KEY"] ?? config["S3Config:SecretKey"];
+            _bucketName = config["AWS_S3_BUCKET_NAME"] ?? config["S3Config:BucketName"] ?? "";
+            _serviceUrl = config["AWS_ENDPOINT_URL"] ?? config["S3Config:ServiceUrl"] ?? "";
 
             var credentials = new BasicAWSCredentials(accessKey, secretKey);
             var s3Config = new AmazonS3Config
             {
                 ServiceURL = _serviceUrl,
-                // შეცვლილია: Virtual-hosted-style მოითხოვს, რომ ForcePathStyle იყოს false
-                ForcePathStyle = false,
+                ForcePathStyle = false, // აუცილებელია Virtual-hosted ლინკებისთვის
                 UseHttp = false,
             };
 
@@ -44,14 +44,13 @@ namespace Portfolio.Asp.Services
                 Key = fileKey,
                 InputStream = stream,
                 ContentType = contentType,
-                CannedACL = S3CannedACL.PublicRead, // დარწმუნდი, რომ ბაქეტზე ACL ჩართულია
+                CannedACL = S3CannedACL.PublicRead,
                 DisablePayloadSigning = true
             };
 
             await _s3Client.PutObjectAsync(putRequest);
 
-            // შეცვლილია: URL-ის გენერაცია Virtual-hosted ფორმატში
-            // შედეგი იქნება: https://bucket-name.t3.storageapi.dev/folder/file.png
+            // ლინკის ფორმატი: https://bucket-name.endpoint/key
             var cleanServiceUrl = _serviceUrl.Replace("https://", "").TrimEnd('/');
             return $"https://{_bucketName}.{cleanServiceUrl}/{fileKey}";
         }
@@ -59,18 +58,12 @@ namespace Portfolio.Asp.Services
         private static string GetSafeContentType(string fileName, string originalContentType)
         {
             var ext = Path.GetExtension(fileName)?.ToLowerInvariant();
-
             return ext switch
             {
                 ".jpg" or ".jpeg" => "image/jpeg",
                 ".png" => "image/png",
                 ".gif" => "image/gif",
                 ".webp" => "image/webp",
-                ".mp4" => "video/mp4",
-                ".mov" => "video/quicktime",
-                ".avi" => "video/x-msvideo",
-                ".mkv" => "video/x-matroska",
-                ".webm" => "video/webm",
                 _ => originalContentType ?? "application/octet-stream"
             };
         }
