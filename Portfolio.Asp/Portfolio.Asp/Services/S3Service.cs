@@ -12,24 +12,27 @@ namespace Portfolio.Asp.Services
 
         public S3Service(IConfiguration config)
         {
-            // Railway-ს ცვლადების პრიორიტეტი ავტომატური დაკავშირებისთვის
+            // Railway-ს ცვლადების პრიორიტეტი. 
+            // დარწმუნდი, რომ Railway-ზე AWS_S3_BUCKET_NAME არის "images-55"
             var accessKey = config["AWS_ACCESS_KEY_ID"] ?? config["S3Config:AccessKey"];
             var secretKey = config["AWS_SECRET_ACCESS_KEY"] ?? config["S3Config:SecretKey"];
             _bucketName = config["AWS_S3_BUCKET_NAME"] ?? config["S3Config:BucketName"] ?? "";
-            _serviceUrl = config["AWS_ENDPOINT_URL"] ?? config["S3Config:ServiceUrl"] ?? "";
+
+            // ვიყენებთ storage.dev-ს, რადგან შენს მუშა ლინკში ასეა
+            _serviceUrl = config["AWS_ENDPOINT_URL"] ?? config["S3Config:ServiceUrl"] ?? "https://t3.storage.dev";
 
             var credentials = new BasicAWSCredentials(accessKey, secretKey);
             var s3Config = new AmazonS3Config
             {
                 ServiceURL = _serviceUrl,
-                ForcePathStyle = false, // აუცილებელია Virtual-hosted URL-ისთვის
+                ForcePathStyle = false,
                 UseHttp = false,
             };
 
             _s3Client = new AmazonS3Client(credentials, s3Config);
         }
 
-        public async Task<string?> UploadFileAsync(IFormFile? file, string folder = "portfolio")
+        public async Task<string?> UploadFileAsync(IFormFile? file, string folder = "users/images")
         {
             if (file == null || file.Length == 0) return null;
 
@@ -44,16 +47,16 @@ namespace Portfolio.Asp.Services
                 Key = fileKey,
                 InputStream = stream,
                 ContentType = contentType,
-                CannedACL = S3CannedACL.PublicRead, // აუცილებელია საჯარო წვდომისთვის
+                CannedACL = S3CannedACL.PublicRead,
                 DisablePayloadSigning = true
             };
 
-            // ატვირთვის პროცესი
             await _s3Client.PutObjectAsync(putRequest);
 
-            // ლინკის სწორი ფორმატი: https://bucket-name.endpoint/key
-            var cleanServiceUrl = _serviceUrl.Replace("https://", "").TrimEnd('/');
-            return $"https://{_bucketName}.{cleanServiceUrl}/{fileKey}";
+            // ლინკის აწყობა ზუსტად იმ ფორმატში, რაც შენთან მუშაობს:
+            // https://images-55.t3.storage.dev/users/images/სახელი.png
+            var cleanUrl = _serviceUrl.Replace("https://", "").TrimEnd('/');
+            return $"https://{_bucketName}.{cleanUrl}/{fileKey}";
         }
 
         private static string GetSafeContentType(string fileName, string originalContentType)
@@ -62,9 +65,10 @@ namespace Portfolio.Asp.Services
             return ext switch
             {
                 ".jpg" or ".jpeg" => "image/jpeg",
-                ".png" => "image/png", 
+                ".png" => "image/png",
                 ".gif" => "image/gif",
                 ".webp" => "image/webp",
+                ".mp4" => "video/mp4",
                 _ => originalContentType ?? "application/octet-stream"
             };
         }
