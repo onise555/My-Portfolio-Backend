@@ -12,7 +12,7 @@ namespace Portfolio.Asp.Services
 
         public S3Service(IConfiguration config)
         {
-            // Railway-ს ცვლადების პრიორიტეტი
+            // Railway-ს ცვლადების პრიორიტეტი ავტომატური დაკავშირებისთვის
             var accessKey = config["AWS_ACCESS_KEY_ID"] ?? config["S3Config:AccessKey"];
             var secretKey = config["AWS_SECRET_ACCESS_KEY"] ?? config["S3Config:SecretKey"];
             _bucketName = config["AWS_S3_BUCKET_NAME"] ?? config["S3Config:BucketName"] ?? "";
@@ -22,7 +22,7 @@ namespace Portfolio.Asp.Services
             var s3Config = new AmazonS3Config
             {
                 ServiceURL = _serviceUrl,
-                ForcePathStyle = false, // აუცილებელია Virtual-hosted ლინკებისთვის
+                ForcePathStyle = false, // აუცილებელია Virtual-hosted URL-ისთვის
                 UseHttp = false,
             };
 
@@ -44,13 +44,14 @@ namespace Portfolio.Asp.Services
                 Key = fileKey,
                 InputStream = stream,
                 ContentType = contentType,
-                CannedACL = S3CannedACL.PublicRead,
+                CannedACL = S3CannedACL.PublicRead, // აუცილებელია საჯარო წვდომისთვის
                 DisablePayloadSigning = true
             };
 
+            // ატვირთვის პროცესი
             await _s3Client.PutObjectAsync(putRequest);
 
-            // ლინკის ფორმატი: https://bucket-name.endpoint/key
+            // ლინკის სწორი ფორმატი: https://bucket-name.endpoint/key
             var cleanServiceUrl = _serviceUrl.Replace("https://", "").TrimEnd('/');
             return $"https://{_bucketName}.{cleanServiceUrl}/{fileKey}";
         }
