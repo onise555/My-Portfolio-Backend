@@ -15,34 +15,31 @@ namespace Portfolio.Asp.FileUploader
             var bucketName = config["AWS_S3_BUCKET_NAME"] ?? config["S3Config:BucketName"] ?? "coordinated-pocket-nxuvrv";
             var serviceUrl = config["AWS_ENDPOINT_URL"] ?? config["S3Config:ServiceUrl"] ?? "https://t3.storageapi.dev";
 
-            if (string.IsNullOrEmpty(accessKey) || string.IsNullOrEmpty(secretKey))
-                throw new InvalidOperationException("AWS credentials missing!");
-
             var credentials = new BasicAWSCredentials(accessKey, secretKey);
-
             using var client = new AmazonS3Client(credentials, new AmazonS3Config
             {
                 ServiceURL = serviceUrl,
-                ForcePathStyle = true,
-                UseHttp = false
+                ForcePathStyle = true
             });
 
             var extension = Path.GetExtension(file.FileName);
             var fileKey = $"{folder}/{Guid.NewGuid()}{extension}";
 
             using var stream = file.OpenReadStream();
-
-            await client.PutObjectAsync(new PutObjectRequest
+            var putRequest = new PutObjectRequest
             {
                 BucketName = bucketName,
                 Key = fileKey,
                 InputStream = stream,
                 ContentType = file.ContentType,
-                DisablePayloadSigning = true
-            });
+                DisablePayloadSigning = true,
+                CannedACL = S3CannedACL.PublicRead
+            };
 
-            // დაბრუნებული ლინკი
-            return $"https://{bucketName}.up.railway.app/{fileKey}";
+            await client.PutObjectAsync(putRequest);
+
+            var baseUrl = serviceUrl.TrimEnd('/');
+            return $"{baseUrl}/{bucketName}/{fileKey}";
         }
     }
 }
