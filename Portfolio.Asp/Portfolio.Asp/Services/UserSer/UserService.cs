@@ -27,8 +27,23 @@ namespace Portfolio.Asp.Services.UserSer
                 ProfileImage = imageUrl,
                 ProfileVideo = videoUrl
             };
-
             await _repo.AddAsync(user);
+        }
+
+        public async Task Update(UpdateUserRequest request)
+        {
+            var user = await _repo.GetByIdAsync(request.Id);
+            if (user == null) return;
+
+            user.FullName = request.FullName;
+
+            if (request.ProfileImage != null)
+                user.ProfileImage = await _s3.UploadFileAsync(request.ProfileImage, "users/images");
+
+            if (request.ProfileVideo != null)
+                user.ProfileVideo = await _s3.UploadFileAsync(request.ProfileVideo, "users/videos");
+
+            await _repo.UpdateAsync(user);
         }
 
         public async Task<List<UserDTO>> GetAllUser()
@@ -46,9 +61,7 @@ namespace Portfolio.Asp.Services.UserSer
         public async Task<UserDTO?> GetById(int id)
         {
             var user = await _repo.GetByIdAsync(id);
-            if (user == null) return null;
-
-            return new UserDTO
+            return user == null ? null : new UserDTO
             {
                 Id = user.Id,
                 FullName = user.FullName,
@@ -61,11 +74,6 @@ namespace Portfolio.Asp.Services.UserSer
         {
             var user = await _repo.GetByIdAsync(id);
             if (user != null) await _repo.DeleteAsync(user);
-        }
-
-        public Task Update(UpdateUserRequest request)
-        {
-            throw new NotImplementedException();
         }
     }
 }
