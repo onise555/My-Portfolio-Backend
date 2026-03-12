@@ -23,7 +23,10 @@ namespace Portfolio.Asp.Controllers
         {
             await _service.Create(request);
 
-            return Ok("User created");
+            return Ok(request);
+
+
+           
         }
 
         [HttpGet("Get-All")]
