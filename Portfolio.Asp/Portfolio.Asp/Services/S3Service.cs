@@ -19,17 +19,16 @@ namespace Portfolio.Asp.Services
             _s3Client = new AmazonS3Client(credentials, new AmazonS3Config
             {
                 ServiceURL = "https://t3.storage.dev",
-                ForcePathStyle = false,
+                ForcePathStyle = true, // ბევრ S3-თავსებად სერვისს ეს სჭირდება
                 UseHttp = false
             });
         }
 
-        // აი აქ დავამატე string folder, რომ წითელი ხაზი გაქრეს
         public async Task<string?> UploadFileAsync(IFormFile? file, string folder)
         {
             if (file == null || file.Length == 0) return null;
 
-            // ფაილის სახელი: ფოლდერი + უნიკალური ID
+            // ფაილის უნიკალური გზა: folder/guid.ext
             var fileKey = $"{folder}/{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
 
             using var stream = file.OpenReadStream();
@@ -45,7 +44,6 @@ namespace Portfolio.Asp.Services
 
             await _s3Client.PutObjectAsync(putRequest);
 
-            // აბრუნებს მუშა ლინკს: modular-briefcase.t3.storage.dev/users/images/...
             return $"https://{_bucketName}.t3.storage.dev/{fileKey}";
         }
     }
