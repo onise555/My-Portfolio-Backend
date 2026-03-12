@@ -1,9 +1,8 @@
 ﻿using Portfolio.Asp.DTOS.User;
-using Portfolio.Asp.FileUploader;
 using Portfolio.Asp.Models.Users;
 using Portfolio.Asp.Repositories;
 using Portfolio.Asp.requests.User;
-using Portfolio.Asp.Services; // დამატებულია S3Service-სთვის
+using Portfolio.Asp.Services;
 
 namespace Portfolio.Asp.Services.UserSer
 {
@@ -20,7 +19,6 @@ namespace Portfolio.Asp.Services.UserSer
 
         public async Task Create(CreateUserRequest request)
         {
-            // პარამეტრები გასწორებულია S3Service-ის ახალ ხელმოწერაზე
             var imageUrl = await _s3.UploadFileAsync(request.ProfileImage, "users/images");
             var videoUrl = await _s3.UploadFileAsync(request.ProfileVideo, "users/videos");
 
@@ -34,10 +32,30 @@ namespace Portfolio.Asp.Services.UserSer
             await _repo.AddAsync(user);
         }
 
+        public async Task Update(UpdateUserRequest request)
+        {
+            var user = await _repo.GetByIdAsync(request.Id);
+            if (user == null) return;
+
+            user.FullName = request.FullName;
+
+            // განახლებისას აუცილებელია შემოწმდეს, მოვიდა თუ არა ახალი ფაილი
+            if (request.ProfileImage != null)
+            {
+                user.ProfileImage = await _s3.UploadFileAsync(request.ProfileImage, "users/images");
+            }
+
+            if (request.ProfileVideo != null)
+            {
+                user.ProfileVideo = await _s3.UploadFileAsync(request.ProfileVideo, "users/videos");
+            }
+
+            await _repo.UpdateAsync(user);
+        }
+
         public async Task<List<UserDTO>> GetAllUser()
         {
             var users = await _repo.GetAllAsync();
-
             return users.Select(u => new UserDTO
             {
                 Id = u.Id,
@@ -50,9 +68,7 @@ namespace Portfolio.Asp.Services.UserSer
         public async Task<UserDTO?> GetById(int id)
         {
             var user = await _repo.GetByIdAsync(id);
-
-            if (user == null)
-                return null;
+            if (user == null) return null;
 
             return new UserDTO
             {
@@ -63,28 +79,10 @@ namespace Portfolio.Asp.Services.UserSer
             };
         }
 
-        public async Task Update(UpdateUserRequest request)
-        {
-            var user = await _repo.GetByIdAsync(request.Id);
-
-            if (user == null)
-                return;
-
-            user.FullName = request.FullName;
-            user.ProfileImage = request.ProfileImage;
-            user.ProfileVideo = request.ProfileVideo;
-
-            await _repo.UpdateAsync(user);
-        }
-
         public async Task Delete(int id)
         {
             var user = await _repo.GetByIdAsync(id);
-
-            if (user == null)
-                return;
-
-            await _repo.DeleteAsync(user);
+            if (user != null) await _repo.DeleteAsync(user);
         }
     }
 }
