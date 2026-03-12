@@ -19,10 +19,10 @@ builder.Services.AddScoped<S3Service>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IUserService, UserService>();
 
-// 4. CORS კონფიგურაცია
+// 4. CORS კონფიგურაცია (გავხსენით ყველაფერი, რომ "Failed to fetch" გამოირიცხოს)
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy("AllowAll", policy =>
     {
         policy.AllowAnyOrigin()
               .AllowAnyHeader()
@@ -34,13 +34,12 @@ builder.Services.AddCors(options =>
 builder.Services.AddDbContext<DataContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
-// 6. FormOptions: 1 GB limit
+// 6. FormOptions & Kestrel (დიდი ფაილებისთვის)
 builder.Services.Configure<FormOptions>(options =>
 {
     options.MultipartBodyLengthLimit = 1_073_741_824; // 1 GB
 });
 
-// 7. Kestrel: 1 GB max request size
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
     serverOptions.Limits.MaxRequestBodySize = 1_073_741_824; // 1 GB
@@ -48,25 +47,24 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
 
 var app = builder.Build();
 
-// 8. Swagger UI
+// 7. Swagger UI - ყოველთვის ჩართული იყოს Railway-ზე სანახავად
 app.UseSwagger();
 app.UseSwaggerUI(options => {
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-    options.RoutePrefix = string.Empty;
+    options.RoutePrefix = string.Empty; // Swagger იქნება მთავარ გვერდზე
 });
 
-// 9. CORS
-app.UseCors();
+// 8. Middleware-ების სწორი თანმიმდევრობა
+app.UseRouting(); // აუცილებელია CORS-ისთვის
 
-// 10. Static files
+app.UseCors("AllowAll"); // ვიყენებთ ჩვენს შექმნილ "AllowAll" პოლიტიკას
+
 app.UseStaticFiles();
-
-// 11. Authorization
 app.UseAuthorization();
 
-// 12. Map Controllers
+// 9. Map Controllers
 app.MapControllers();
 
-// 13. დინამიური პორტი
+// 10. დინამიური პორტი Railway-სთვის
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 app.Run($"http://0.0.0.0:{port}");
