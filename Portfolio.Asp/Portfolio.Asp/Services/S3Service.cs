@@ -8,28 +8,26 @@ namespace Portfolio.Asp.Services
     {
         private readonly IAmazonS3 _s3Client;
         private readonly string _bucketName;
-        private readonly string _serviceUrl;
 
         public S3Service(IConfiguration config)
         {
-            // 1. პრიორიტეტი ენიჭება Railway-ს ავტომატურ ცვლადებს (AWS_...), შემდეგ appsettings-ს (S3Config:...)
+            // 1. მონაცემების წაკითხვა (Railway Variables -> AppSettings)
             var accessKey = config["AWS_ACCESS_KEY_ID"] ?? config["S3Config:AccessKey"];
             var secretKey = config["AWS_SECRET_ACCESS_KEY"] ?? config["S3Config:SecretKey"];
 
             _bucketName = config["AWS_S3_BUCKET_NAME"] ?? config["S3Config:BucketName"] ?? "coordinated-pocket-nxuvrv";
-            _serviceUrl = config["AWS_ENDPOINT_URL"] ?? config["S3Config:ServiceUrl"] ?? "https://t3.storageapi.dev";
+            var serviceUrl = config["AWS_ENDPOINT_URL"] ?? config["S3Config:ServiceUrl"] ?? "https://t3.storageapi.dev";
             var region = config["AWS_DEFAULT_REGION"] ?? config["S3Config:Region"] ?? "auto";
 
-            // ვალიდაცია: თუ გასაღებები საერთოდ არ გვაქვს, აპლიკაცია ერორს აგდებს
             if (string.IsNullOrEmpty(accessKey) || string.IsNullOrEmpty(secretKey))
-                throw new InvalidOperationException("S3 Credentials are not configured! Please check Railway Variables or appsettings.json.");
+                throw new InvalidOperationException("S3 Credentials missing! Check Railway Variables.");
 
             var credentials = new BasicAWSCredentials(accessKey, secretKey);
 
             var s3Config = new AmazonS3Config
             {
-                ServiceURL = _serviceUrl,
-                ForcePathStyle = true, // აუცილებელია S3-თან თავსებადი სერვისებისთვის (Cloudflare/R2/T3)
+                ServiceURL = serviceUrl,
+                ForcePathStyle = true,
                 AuthenticationRegion = region
             };
 
@@ -40,8 +38,8 @@ namespace Portfolio.Asp.Services
         {
             if (file == null || file.Length == 0) return null;
 
-            // უნიკალური ფაილის სახელის გენერაცია
-            var fileKey = $"{folder}/{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+            var extension = Path.GetExtension(file.FileName);
+            var fileKey = $"{folder}/{Guid.NewGuid()}{extension}";
 
             using var stream = file.OpenReadStream();
 
@@ -51,21 +49,17 @@ namespace Portfolio.Asp.Services
                 Key = fileKey,
                 InputStream = stream,
                 ContentType = file.ContentType,
-                // ზოგიერთი S3 პროვაიდერისთვის აუცილებელია Payload Signing-ის გათიშვა
                 DisablePayloadSigning = true
             };
 
             try
             {
                 await _s3Client.PutObjectAsync(putRequest);
-
-                // სწორი URL-ის დაბრუნება (ServiceURL-ის გამოყენებით)
-                var baseUrl = _serviceUrl.TrimEnd('/');
-                return $"{baseUrl}/{_bucketName}/{fileKey}";
+                // დაბრუნებული ლინკი, რომელიც საჯაროდ იხსნება Railway-ზე
+                return $"https://{_bucketName}.up.railway.app/{fileKey}";
             }
             catch (Exception ex)
             {
-                // აქ შეგიძლია ლოგირება დაამატო
                 throw new Exception($"S3 Upload failed: {ex.Message}");
             }
         }
