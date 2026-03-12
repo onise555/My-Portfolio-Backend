@@ -30,11 +30,12 @@ builder.Services.AddCors(options =>
     });
 });
 
-// 5. PostgreSQL
+// 5. PostgreSQL კონფიგურაცია
+// იღებს "Default" სტრინგს შენი appsettings.json-დან
 builder.Services.AddDbContext<DataContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
-// 6. FormOptions & Kestrel
+// 6. FormOptions & Kestrel (დიდი ფაილებისთვის)
 builder.Services.Configure<FormOptions>(options =>
 {
     options.MultipartBodyLengthLimit = 1_073_741_824; // 1 GB
@@ -46,11 +47,15 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
 
 var app = builder.Build();
 
-// 7. Swagger
+// --- შეცდომების დეტალური ჩვენება (Critical for debugging 500 errors) ---
+// ეს ხაზი დაგეხმარება დაინახო რა "ტყდება" ბაზასთან კავშირისას
+app.UseDeveloperExceptionPage();
+
+// 7. Swagger კონფიგურაცია
 app.UseSwagger();
 app.UseSwaggerUI(options => {
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-    options.RoutePrefix = string.Empty;
+    options.RoutePrefix = string.Empty; // Swagger იქნება მთავარ გვერდზე
 });
 
 // 8. Middleware
