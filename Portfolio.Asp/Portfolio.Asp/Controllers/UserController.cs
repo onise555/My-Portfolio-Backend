@@ -37,5 +37,18 @@ namespace Portfolio.Asp.Controllers
             return Ok(users);
         }
 
+        [HttpDelete("Delete-User/{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var user = await _service.GetById(id);
+            if (user == null)
+            {
+                return NotFound(new { message = "User not found" });
+            }
+
+            await _service.Delete(id);
+            return Ok(new { message = "User deleted successfully" });
+        }
+
     }
 }
