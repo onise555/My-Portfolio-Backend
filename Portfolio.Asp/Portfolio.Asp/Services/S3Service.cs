@@ -12,11 +12,10 @@ namespace Portfolio.Asp.Services
 
         public S3Service(IConfiguration config)
         {
-            // Railway-ს ცვლადების პრიორიტეტი
             var accessKey = config["AWS_ACCESS_KEY_ID"] ?? config["S3Config:AccessKey"];
             var secretKey = config["AWS_SECRET_ACCESS_KEY"] ?? config["S3Config:SecretKey"];
-            _bucketName = config["AWS_S3_BUCKET_NAME"] ?? config["S3Config:BucketName"] ?? "coordinated-pocket-nxuvrv";
-            _serviceUrl = config["AWS_ENDPOINT_URL"] ?? config["S3Config:ServiceUrl"] ?? "https://t3.storageapi.dev";
+            _bucketName = config["AWS_S3_BUCKET_NAME"] ?? config["S3Config:BucketName"] ?? "coordinated-pocket";
+            _serviceUrl = config["AWS_ENDPOINT_URL"] ?? config["S3Config:ServiceUrl"] ?? "https://t3.storage.dev";
 
             if (string.IsNullOrEmpty(accessKey) || string.IsNullOrEmpty(secretKey))
                 throw new InvalidOperationException("S3 Credentials missing! Check Railway Variables.");
@@ -25,7 +24,7 @@ namespace Portfolio.Asp.Services
             _s3Client = new AmazonS3Client(credentials, new AmazonS3Config
             {
                 ServiceURL = _serviceUrl,
-                ForcePathStyle = true, // აუცილებელია T3/Minio-სთვის
+                ForcePathStyle = true,
                 AuthenticationRegion = "auto"
             });
         }
@@ -34,8 +33,7 @@ namespace Portfolio.Asp.Services
         {
             if (file == null || file.Length == 0) return null;
 
-            var extension = Path.GetExtension(file.FileName);
-            var fileKey = $"{folder}/{Guid.NewGuid()}{extension}";
+            var fileKey = $"{folder}/{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
 
             using var stream = file.OpenReadStream();
             var putRequest = new PutObjectRequest
@@ -45,14 +43,15 @@ namespace Portfolio.Asp.Services
                 InputStream = stream,
                 ContentType = file.ContentType,
                 DisablePayloadSigning = true,
-                CannedACL = S3CannedACL.PublicRead // აგვარებს Access Denied პრობლემას
+                CannedACL = S3CannedACL.PublicRead
             };
 
             try
             {
                 await _s3Client.PutObjectAsync(putRequest);
-                var baseUrl = _serviceUrl.TrimEnd('/');
-                return $"{baseUrl}/{_bucketName}/{fileKey}";
+
+                // აბრუნებს იმ ფორმატს, რომელიც დადასტურებულად გიხსნის სურათს
+                return $"https://{_bucketName}.t3.storage.dev/{fileKey}";
             }
             catch (Exception ex)
             {
