@@ -19,7 +19,7 @@ namespace Portfolio.Asp.Services
             _s3Client = new AmazonS3Client(credentials, new AmazonS3Config
             {
                 ServiceURL = "https://t3.storage.dev",
-                ForcePathStyle = true, // ბევრ S3-თავსებად სერვისს ეს სჭირდება
+                ForcePathStyle = true,
                 UseHttp = false
             });
         }
@@ -28,7 +28,6 @@ namespace Portfolio.Asp.Services
         {
             if (file == null || file.Length == 0) return null;
 
-            // ფაილის უნიკალური გზა: folder/guid.ext
             var fileKey = $"{folder}/{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
 
             using var stream = file.OpenReadStream();
@@ -38,7 +37,7 @@ namespace Portfolio.Asp.Services
                 Key = fileKey,
                 InputStream = stream,
                 ContentType = file.ContentType,
-                CannedACL = S3CannedACL.PublicRead,
+                // წავშალეთ CannedACL, რადგან ხშირად ეს იწვევს 'Access Denied'-ს
                 DisablePayloadSigning = true
             };
 
