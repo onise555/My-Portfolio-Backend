@@ -6,7 +6,6 @@ namespace Portfolio.Asp.FileUploader
 {
     public static class FileUploadHelper
     {
-        // დავამატეთ string folder პარამეტრი, რომ UserService-თან თავსებადი იყოს
         public static async Task<string?> UploadImg(IFormFile? file, string folder, IConfiguration config)
         {
             if (file == null || file.Length == 0) return null;
@@ -20,15 +19,15 @@ namespace Portfolio.Asp.FileUploader
             var s3Config = new AmazonS3Config
             {
                 ServiceURL = serviceUrl,
-                ForcePathStyle = false, // აუცილებელია Virtual-hosted სტილისთვის
+                // t3.storage.dev-სთვის სცადე true, თუ წინა ვერსიაზე false-მა არ იმუშავა
+                ForcePathStyle = true,
                 UseHttp = false
             };
 
             using var client = new AmazonS3Client(credentials, s3Config);
 
-            // ფაილის გასაღები (Key). თუ გინდა ფოლდერში ჩაჯდეს: $"{folder}/{Guid.NewGuid()}..."
-            // მაგრამ რადგან შენი მუშა ლინკი პირდაპირია, გამოვიყენოთ პირდაპირი სახელი:
-            var fileKey = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+            // ფაილის გასაღები: ახლა folder-საც ვიყენებთ, რომ სერვერზე ფაილები დალაგებული იყოს
+            var fileKey = $"{folder}/{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
 
             using var stream = file.OpenReadStream();
             var uploadRequest = new TransferUtilityUploadRequest
@@ -37,13 +36,14 @@ namespace Portfolio.Asp.FileUploader
                 Key = fileKey,
                 BucketName = bucketName,
                 ContentType = file.ContentType,
-                CannedACL = S3CannedACL.PublicRead,
+                // CannedACL ამოღებულია Access Denied-ის თავიდან ასაცილებლად
                 AutoCloseStream = false
             };
 
             var transferUtility = new TransferUtility(client);
             await transferUtility.UploadAsync(uploadRequest);
 
+            // აბრუნებს სრულ ლინკს
             return $"https://{bucketName}.t3.storage.dev/{fileKey}";
         }
     }

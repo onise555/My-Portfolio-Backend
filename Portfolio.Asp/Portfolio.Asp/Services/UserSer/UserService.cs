@@ -70,8 +70,6 @@ namespace Portfolio.Asp.Services.UserSer
             if (user == null)
                 return;
 
-            // აქაც თუ ახალ ფაილებს ატვირთავ, იგივე ლოგიკაა საჭირო, 
-            // რაც Create მეთოდში (თუ IFormFile მოდის request-ში)
             user.FullName = request.FullName;
             user.ProfileImage = request.ProfileImage;
             user.ProfileVideo = request.ProfileVideo;
