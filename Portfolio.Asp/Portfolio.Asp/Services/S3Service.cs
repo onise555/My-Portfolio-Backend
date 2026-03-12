@@ -51,7 +51,7 @@ namespace Portfolio.Asp.Services
                 await _s3Client.PutObjectAsync(putRequest);
 
                 // აბრუნებს იმ ფორმატს, რომელიც დადასტურებულად გიხსნის სურათს
-                return $"https://{_bucketName}.t3.storage.dev/{fileKey}";
+                return $"https://coordinated-pocket.t3.storage.dev/{fileKey}";
             }
             catch (Exception ex)
             {
