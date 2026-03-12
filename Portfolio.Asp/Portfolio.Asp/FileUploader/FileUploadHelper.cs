@@ -1,5 +1,5 @@
 ﻿using Amazon.S3;
-using Amazon.S3.Transfer;
+using Amazon.S3.Model;
 using Amazon.Runtime;
 
 namespace Portfolio.Asp.FileUploader
@@ -12,38 +12,33 @@ namespace Portfolio.Asp.FileUploader
 
             var accessKey = config["AWS_ACCESS_KEY_ID"];
             var secretKey = config["AWS_SECRET_ACCESS_KEY"];
-            var bucketName = config["AWS_S3_BUCKET_NAME"] ?? "modular-briefcase";
-            var serviceUrl = "https://t3.storage.dev";
 
+            if (string.IsNullOrEmpty(accessKey) || string.IsNullOrEmpty(secretKey))
+                throw new InvalidOperationException("AWS credentials missing!");
+
+            var bucketName = config["AWS_S3_BUCKET_NAME"] ?? "modular-briefcase";
             var credentials = new BasicAWSCredentials(accessKey, secretKey);
-            var s3Config = new AmazonS3Config
+
+            using var client = new AmazonS3Client(credentials, new AmazonS3Config
             {
-                ServiceURL = serviceUrl,
-                // t3.storage.dev-სთვის სცადე true, თუ წინა ვერსიაზე false-მა არ იმუშავა
+                ServiceURL = "https://t3.storage.dev",
                 ForcePathStyle = true,
                 UseHttp = false
-            };
+            });
 
-            using var client = new AmazonS3Client(credentials, s3Config);
-
-            // ფაილის გასაღები: ახლა folder-საც ვიყენებთ, რომ სერვერზე ფაილები დალაგებული იყოს
             var fileKey = $"{folder}/{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
 
             using var stream = file.OpenReadStream();
-            var uploadRequest = new TransferUtilityUploadRequest
+
+            await client.PutObjectAsync(new PutObjectRequest
             {
-                InputStream = stream,
-                Key = fileKey,
                 BucketName = bucketName,
+                Key = fileKey,
+                InputStream = stream,
                 ContentType = file.ContentType,
-                // CannedACL ამოღებულია Access Denied-ის თავიდან ასაცილებლად
-                AutoCloseStream = false
-            };
+                DisablePayloadSigning = true
+            });
 
-            var transferUtility = new TransferUtility(client);
-            await transferUtility.UploadAsync(uploadRequest);
-
-            // აბრუნებს სრულ ლინკს
             return $"https://{bucketName}.t3.storage.dev/{fileKey}";
         }
     }

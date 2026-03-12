@@ -13,9 +13,14 @@ namespace Portfolio.Asp.Services
         {
             var accessKey = config["AWS_ACCESS_KEY_ID"];
             var secretKey = config["AWS_SECRET_ACCESS_KEY"];
+
+            if (string.IsNullOrEmpty(accessKey) || string.IsNullOrEmpty(secretKey))
+                throw new InvalidOperationException("AWS credentials are not configured! Check Railway environment variables.");
+
             _bucketName = config["AWS_S3_BUCKET_NAME"] ?? "modular-briefcase";
 
             var credentials = new BasicAWSCredentials(accessKey, secretKey);
+
             _s3Client = new AmazonS3Client(credentials, new AmazonS3Config
             {
                 ServiceURL = "https://t3.storage.dev",
@@ -31,13 +36,13 @@ namespace Portfolio.Asp.Services
             var fileKey = $"{folder}/{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
 
             using var stream = file.OpenReadStream();
+
             var putRequest = new PutObjectRequest
             {
                 BucketName = _bucketName,
                 Key = fileKey,
                 InputStream = stream,
                 ContentType = file.ContentType,
-                // წავშალეთ CannedACL, რადგან ხშირად ეს იწვევს 'Access Denied'-ს
                 DisablePayloadSigning = true
             };
 

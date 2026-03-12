@@ -2,7 +2,6 @@
 using Portfolio.Asp.Models.Users;
 using Portfolio.Asp.Repositories;
 using Portfolio.Asp.requests.User;
-using Portfolio.Asp.Services;
 
 namespace Portfolio.Asp.Services.UserSer
 {
@@ -31,8 +30,6 @@ namespace Portfolio.Asp.Services.UserSer
 
             await _repo.AddAsync(user);
         }
-
-      
 
         public async Task<List<UserDTO>> GetAllUser()
         {
