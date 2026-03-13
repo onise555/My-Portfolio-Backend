@@ -1,61 +1,64 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Portfolio.Asp.requests.User;
 using Portfolio.Asp.Services.UserSer;
 
-namespace Portfolio.Asp.Controllers
+[Route("api/[controller]")]
+[ApiController]
+public class UserController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class UserController : ControllerBase
+    private readonly IUserService _service;
+
+    public UserController(IUserService service)
     {
-        private readonly IUserService _service;
+        _service = service;
+    }
 
+    [HttpPost("Add-User")]
+    public async Task<IActionResult> Create([FromForm] CreateUserRequest request)
+    {
+        await _service.Create(request);
+        return Created("", request);
+    }
 
+    [HttpGet("Get-All-Users")]
+    public async Task<IActionResult> GetAll()
+    {
+        var users = await _service.GetAllUser();
+        return Ok(users);
+    }
 
-        public UserController(IUserService service)
-        {
-            _service = service;
-        }
+    [HttpGet("Get-User/{id}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var user = await _service.GetById(id);
 
-        [HttpPost("Add-User")]
-        public async Task<IActionResult> Create([FromForm] CreateUserRequest request)
-        {
-            await _service.Create(request);
+        if (user == null)
+            return NotFound();
 
-            return Ok(request);
+        return Ok(user);
+    }
 
-        }
+    [HttpPut("Update-User/{id}")]
+    public async Task<IActionResult> Update(int id, [FromForm] UpdateUserRequest request)
+    {
+        if (id != request.Id)
+            return BadRequest();
 
-        
+        await _service.Update(request);
 
-        [HttpGet("Get-All")]
-        public async Task<IActionResult> GetAll()
-        {
-            var users = await _service.GetAllUser();
+        return Ok();
+    }
 
-            return Ok(users);
-        }
+    [HttpDelete("Delete-User/{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var user = await _service.GetById(id);
 
-        [HttpPut("Update-User")]
-        public async Task<IActionResult> Update([FromForm] UpdateUserRequest request)
-        {
-            await _service.Update(request);
-            return Ok(request);
-        }
+        if (user == null)
+            return NotFound();
 
-        [HttpDelete("Delete-User/{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var user = await _service.GetById(id);
-            if (user == null)
-            {
-                return NotFound(new { message = "User not found" });
-            }
+        await _service.Delete(id);
 
-            await _service.Delete(id);
-            return Ok(new { message = "User deleted successfully" });
-        }
-
+        return NoContent();
     }
 }
