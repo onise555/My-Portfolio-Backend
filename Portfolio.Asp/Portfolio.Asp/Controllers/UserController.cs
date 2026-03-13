@@ -25,8 +25,6 @@ namespace Portfolio.Asp.Controllers
 
             return Ok(request);
 
-
-           
         }
 
         [HttpGet("Get-All")]
