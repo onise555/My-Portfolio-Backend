@@ -27,12 +27,21 @@ namespace Portfolio.Asp.Controllers
 
         }
 
+        
+
         [HttpGet("Get-All")]
         public async Task<IActionResult> GetAll()
         {
             var users = await _service.GetAllUser();
 
             return Ok(users);
+        }
+
+        [HttpPut("Update-User")]
+        public async Task<IActionResult> Update([FromForm] UpdateUserRequest request)
+        {
+            await _service.Update(request);
+            return Ok(request);
         }
 
         [HttpDelete("Delete-User/{id}")]

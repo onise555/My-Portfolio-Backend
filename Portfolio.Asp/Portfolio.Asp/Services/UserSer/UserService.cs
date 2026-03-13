@@ -30,20 +30,29 @@ namespace Portfolio.Asp.Services.UserSer
             await _repo.AddAsync(user);
         }
 
+
+
+
         public async Task Update(UpdateUserRequest request)
         {
             var user = await _repo.GetByIdAsync(request.Id);
-            if (user == null) return;
+            if (user == null)
+                user = new User();
 
             user.FullName = request.FullName;
 
             if (request.ProfileImage != null)
+            {
                 user.ProfileImage = await _s3.UploadFileAsync(request.ProfileImage, "users/images");
 
-            if (request.ProfileVideo != null)
-                user.ProfileVideo = await _s3.UploadFileAsync(request.ProfileVideo, "users/videos");
 
-            await _repo.UpdateAsync(user);
+                if (request.ProfileVideo != null)
+                    user.ProfileVideo = await _s3.UploadFileAsync(request.ProfileVideo, "users/videos");
+
+
+                await _repo.UpdateAsync(user);
+
+            }
         }
 
         public async Task<List<UserDTO>> GetAllUser()
