@@ -62,9 +62,7 @@ namespace Portfolio.Asp.Services
         {
             if (string.IsNullOrEmpty(fileUrl)) return;
 
-            // URL-დან fileKey-ს ამოღება
-            // მაგ: "https://coordinated-pocket.t3.storage.dev/users/images/abc.jpg"
-            //       → fileKey = "users/images/abc.jpg"
+    
             var uri = new Uri(fileUrl);
             var fileKey = uri.AbsolutePath.TrimStart('/');
 
