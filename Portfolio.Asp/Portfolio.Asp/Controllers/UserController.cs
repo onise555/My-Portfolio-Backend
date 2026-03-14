@@ -4,11 +4,11 @@ using Portfolio.Asp.Services.UserSer;
 
 [Route("api/[controller]")]
 [ApiController]
-public class user_controller : ControllerBase
+public class usercontroller : ControllerBase
 {
     private readonly IUserService _service;
 
-    public user_controller(IUserService service)
+    public usercontroller(IUserService service)
     {
         _service = service;
     }
