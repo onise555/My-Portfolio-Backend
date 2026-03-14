@@ -48,7 +48,7 @@ namespace Portfolio.Asp.Services.ProfilleSer
 
             return new UserProfileDTO
             {
-                id = profile.Id,
+                Id = profile.Id,
                 About = profile.About,
                 UserId = profile.UserId
             };
