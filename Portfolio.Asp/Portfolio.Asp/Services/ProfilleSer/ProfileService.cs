@@ -8,7 +8,7 @@ using Portfolio.Asp.requests.Profile;
 namespace Portfolio.Asp.Services.ProfilleSer
 {
 
-    public class ProfileService : IProfileServ
+    public class ProfileService : IProfileService
 
 
     {
