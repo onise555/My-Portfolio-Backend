@@ -2,8 +2,9 @@
 using Portfolio.Asp.Data;
 using Portfolio.Asp.Repositories;
 using Portfolio.Asp.Services;
-using Portfolio.Asp.Services.ProfilleSer;
 using Portfolio.Asp.Services.UserSer;
+using Portfolio.Asp.Services.ProfilleSer;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,7 @@ builder.Services.AddScoped<S3Service>();
 
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IProfileService, ProfileService>();
 
 
 // CORS კონფიგურაცია
