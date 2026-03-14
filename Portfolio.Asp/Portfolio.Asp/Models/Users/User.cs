@@ -11,7 +11,9 @@ namespace Portfolio.Asp.Models.Users
 
         public string ProfileVideo { get; set; }
 
-        public Profile Profile {  get; set; }
+
+        public Profile Profile {  get; set; }  
+
 
 
     }
