@@ -1,5 +1,6 @@
 ﻿using Amazon.Runtime;
 using Portfolio.Asp.DTO_s.profile;
+using Portfolio.Asp.DTOS.User;
 using Portfolio.Asp.Models.Users;
 using Portfolio.Asp.Repositories;
 using Portfolio.Asp.requests.Profile;
@@ -35,12 +36,20 @@ namespace Portfolio.Asp.Services.ProfilleSer
         {
             throw new NotImplementedException();
         }
-
-        public Task<UserProfileDTO?> GetById(int id)
+        public async Task<UserDTO?> GetById(int id)
         {
-            throw new NotImplementedException();
-        }
+            var user = await _repo.GetByIdAsync(id);
 
+            if (user == null)
+                return null;
+
+            return new UserDTO
+            {
+                Id = user.Id,
+                FullName = user.About,
+      
+            };
+        }
         public Task Update(UpdateProfilerequest request)
         {
             throw new NotImplementedException();
