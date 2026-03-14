@@ -28,5 +28,16 @@ namespace Portfolio.Asp.Controllers
 
         }
 
+        [HttpGet("Get-Profile/{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var user = await _service.GetById(id);
+
+            if (user == null)
+                return NotFound();
+
+            return Ok(user);
+        }
+
     }
 }
