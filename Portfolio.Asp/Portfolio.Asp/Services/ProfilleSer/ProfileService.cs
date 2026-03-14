@@ -28,6 +28,8 @@ namespace Portfolio.Asp.Services.ProfilleSer
             await _repo.AddAsync(profile);
         }
 
+  
+
         public Task Delete(int id)
         {
             throw new NotImplementedException();
@@ -55,9 +57,22 @@ namespace Portfolio.Asp.Services.ProfilleSer
             throw new NotImplementedException();
         }
 
-        public Task Update(UpdateProfilerequest request)
+        public async Task Update( UpdateProfilerequest request)
         {
-            throw new NotImplementedException();
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
+
+            // მხოლოდ საჭირო პროფილს წამოიღებს
+            var profile = await _repo.GetByIdAsync(request.UserId);
+
+            if (profile == null)
+                throw new KeyNotFoundException($"user '{request.UserId}' not found.");
+
+            profile.About = request.About;
+            // სხვა ველებიც დაამატე საჭიროებისამებრ
+
+            await _repo.UpdateAsync(profile);
         }
+
     }
 }
