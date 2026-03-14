@@ -8,7 +8,8 @@ using Portfolio.Asp.requests.Profile;
 namespace Portfolio.Asp.Services.ProfilleSer
 {
 
-    public class ProfileService : IProfileService
+    public class ProfileService : IProfileServ
+
 
     {
         private readonly IRepository<Profile> _repo;
@@ -32,7 +33,8 @@ namespace Portfolio.Asp.Services.ProfilleSer
             await _repo.AddAsync(profile);
         }
 
-  
+
+
 
         public Task Delete(int id)
         {
@@ -61,15 +63,21 @@ namespace Portfolio.Asp.Services.ProfilleSer
             throw new NotImplementedException();
         }
 
-        public async Task Update(int userId, UpdateProfilerequest request)
+
+
+
+
+        public async Task Update(UpdateProfilerequest request)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
-            var profile = await _repo.GetByIdAsync(userId);
+
+            var profiles = await _repo.GetAllAsync();
+            var profile = profiles.FirstOrDefault(p => p.UserId == request.UserId);
 
             if (profile == null)
-                throw new KeyNotFoundException($"Profile for user '{userId}' not found.");
+                throw new KeyNotFoundException($"Profile not found for userId ");
 
             profile.About = request.About;
 
