@@ -33,19 +33,20 @@ namespace Portfolio.Asp.Services.ProfilleSer
             throw new NotImplementedException();
         }
 
-  
-        public async Task<UserProfileDTO?> GetById(int id)
-        {
-            var user = await _repo.GetByIdAsync(id);
 
-            if (user == null)
+        public async Task<UserProfileDTO?> GetByUserId(int userId)
+        {
+            var profiles = await _repo.GetAllAsync();
+            var profile = profiles.FirstOrDefault(p => p.UserId == userId);
+
+            if (profile == null)
                 return null;
 
             return new UserProfileDTO
             {
-                id = user.Id,
-                About = user.About,
-
+                id = profile.Id,
+                About = profile.About,
+                UserId = profile.UserId
             };
         }
 
