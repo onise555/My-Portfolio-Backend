@@ -12,7 +12,7 @@ using Portfolio.Asp.Data;
 namespace Portfolio.Asp.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20260312201331_init")]
+    [Migration("20260307164257_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -323,7 +323,7 @@ namespace Portfolio.Asp.Migrations
                     b.ToTable("socialLinks");
                 });
 
-            modelBuilder.Entity("Portfolio.Asp.Models.Users.Profile", b =>
+            modelBuilder.Entity("Portfolio.Asp.Models.User.Profile", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -346,7 +346,7 @@ namespace Portfolio.Asp.Migrations
                     b.ToTable("Profiles");
                 });
 
-            modelBuilder.Entity("Portfolio.Asp.Models.Users.User", b =>
+            modelBuilder.Entity("Portfolio.Asp.Models.User.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -511,7 +511,7 @@ namespace Portfolio.Asp.Migrations
 
             modelBuilder.Entity("Portfolio.Asp.Models.Academies.Academy", b =>
                 {
-                    b.HasOne("Portfolio.Asp.Models.Users.Profile", "Profile")
+                    b.HasOne("Portfolio.Asp.Models.User.Profile", "Profile")
                         .WithMany("academies")
                         .HasForeignKey("ProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -544,7 +544,7 @@ namespace Portfolio.Asp.Migrations
 
             modelBuilder.Entity("Portfolio.Asp.Models.Contacts.Contact", b =>
                 {
-                    b.HasOne("Portfolio.Asp.Models.Users.Profile", "Profile")
+                    b.HasOne("Portfolio.Asp.Models.User.Profile", "Profile")
                         .WithMany("contacts")
                         .HasForeignKey("profileId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -555,7 +555,7 @@ namespace Portfolio.Asp.Migrations
 
             modelBuilder.Entity("Portfolio.Asp.Models.Projects.Project", b =>
                 {
-                    b.HasOne("Portfolio.Asp.Models.Users.Profile", "Profile")
+                    b.HasOne("Portfolio.Asp.Models.User.Profile", "Profile")
                         .WithMany("projects")
                         .HasForeignKey("ProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -588,7 +588,7 @@ namespace Portfolio.Asp.Migrations
 
             modelBuilder.Entity("Portfolio.Asp.Models.Skills.SoftSkills", b =>
                 {
-                    b.HasOne("Portfolio.Asp.Models.Users.Profile", "Profile")
+                    b.HasOne("Portfolio.Asp.Models.User.Profile", "Profile")
                         .WithMany("Skills")
                         .HasForeignKey("ProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -599,7 +599,7 @@ namespace Portfolio.Asp.Migrations
 
             modelBuilder.Entity("Portfolio.Asp.Models.SocialLinks.SocialLink", b =>
                 {
-                    b.HasOne("Portfolio.Asp.Models.Users.Profile", "Profile")
+                    b.HasOne("Portfolio.Asp.Models.User.Profile", "Profile")
                         .WithMany("links")
                         .HasForeignKey("ProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -608,11 +608,11 @@ namespace Portfolio.Asp.Migrations
                     b.Navigation("Profile");
                 });
 
-            modelBuilder.Entity("Portfolio.Asp.Models.Users.Profile", b =>
+            modelBuilder.Entity("Portfolio.Asp.Models.User.Profile", b =>
                 {
-                    b.HasOne("Portfolio.Asp.Models.Users.User", "User")
+                    b.HasOne("Portfolio.Asp.Models.User.User", "User")
                         .WithOne("Profile")
-                        .HasForeignKey("Portfolio.Asp.Models.Users.Profile", "UserId")
+                        .HasForeignKey("Portfolio.Asp.Models.User.Profile", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -621,7 +621,7 @@ namespace Portfolio.Asp.Migrations
 
             modelBuilder.Entity("Portfolio.Asp.Models.WorkExperiations.WorkExperiation", b =>
                 {
-                    b.HasOne("Portfolio.Asp.Models.Users.Profile", "profile")
+                    b.HasOne("Portfolio.Asp.Models.User.Profile", "profile")
                         .WithMany("experiences")
                         .HasForeignKey("profileid")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -643,7 +643,7 @@ namespace Portfolio.Asp.Migrations
 
             modelBuilder.Entity("Portfolio.Asp.Models.languages.language", b =>
                 {
-                    b.HasOne("Portfolio.Asp.Models.Users.Profile", "Profile")
+                    b.HasOne("Portfolio.Asp.Models.User.Profile", "Profile")
                         .WithMany("languages")
                         .HasForeignKey("ProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -654,7 +654,7 @@ namespace Portfolio.Asp.Migrations
 
             modelBuilder.Entity("ProfileTools", b =>
                 {
-                    b.HasOne("Portfolio.Asp.Models.Users.Profile", null)
+                    b.HasOne("Portfolio.Asp.Models.User.Profile", null)
                         .WithMany()
                         .HasForeignKey("ProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -717,7 +717,7 @@ namespace Portfolio.Asp.Migrations
                     b.Navigation("ProjectSubCategories");
                 });
 
-            modelBuilder.Entity("Portfolio.Asp.Models.Users.Profile", b =>
+            modelBuilder.Entity("Portfolio.Asp.Models.User.Profile", b =>
                 {
                     b.Navigation("Skills");
 
@@ -734,7 +734,7 @@ namespace Portfolio.Asp.Migrations
                     b.Navigation("projects");
                 });
 
-            modelBuilder.Entity("Portfolio.Asp.Models.Users.User", b =>
+            modelBuilder.Entity("Portfolio.Asp.Models.User.User", b =>
                 {
                     b.Navigation("Profile")
                         .IsRequired();
