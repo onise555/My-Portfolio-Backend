@@ -1,57 +1,62 @@
 ﻿using Amazon.S3;
 using Amazon.S3.Model;
-using Amazon.S3.Transfer;
 using Amazon.Runtime;
 
 namespace Portfolio.Asp.Services
 {
     public class S3Service
     {
-        private readonly IConfiguration _config;
         private readonly IAmazonS3 _s3Client;
         private readonly string _bucketName;
         private readonly string _serviceUrl;
 
         public S3Service(IConfiguration config)
         {
-            _config = config;
+            var accessKey = config["AWS_ACCESS_KEY_ID"] ?? config["S3Config:AccessKey"];
+            var secretKey = config["AWS_SECRET_ACCESS_KEY"] ?? config["S3Config:SecretKey"];
+            _bucketName = config["AWS_S3_BUCKET_NAME"] ?? config["S3Config:BucketName"] ?? "coordinated-pocket";
+            _serviceUrl = config["AWS_ENDPOINT_URL"] ?? config["S3Config:ServiceUrl"] ?? "https://t3.storage.dev";
 
-            var accessKey = _config["S3Config:AccessKey"];
-            var secretKey = _config["S3Config:SecretKey"];
-            _bucketName = _config["S3Config:BucketName"] ?? "";
-            _serviceUrl = _config["S3Config:ServiceUrl"] ?? "";
+            if (string.IsNullOrEmpty(accessKey) || string.IsNullOrEmpty(secretKey))
+                throw new InvalidOperationException("S3 Credentials missing! Check Railway Variables.");
 
             var credentials = new BasicAWSCredentials(accessKey, secretKey);
-            var s3Config = new AmazonS3Config
+            _s3Client = new AmazonS3Client(credentials, new AmazonS3Config
             {
                 ServiceURL = _serviceUrl,
-                ForcePathStyle = true
-            };
-
-            _s3Client = new AmazonS3Client(credentials, s3Config);
+                ForcePathStyle = true,
+                AuthenticationRegion = "auto"
+            });
         }
 
-        public async Task<string?> UploadFileAsync(IFormFile file, string folder = "portfolio")
+        public async Task<string?> UploadFileAsync(IFormFile? file, string folder)
         {
             if (file == null || file.Length == 0) return null;
 
             var fileKey = $"{folder}/{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
 
             using var stream = file.OpenReadStream();
-            var uploadRequest = new TransferUtilityUploadRequest
+            var putRequest = new PutObjectRequest
             {
-                InputStream = stream,
-                Key = fileKey,
                 BucketName = _bucketName,
+                Key = fileKey,
+                InputStream = stream,
                 ContentType = file.ContentType,
-                CannedACL = S3CannedACL.PublicRead // ხდის ფაილს მუდმივად საჯაროს
+                DisablePayloadSigning = true,
+                CannedACL = S3CannedACL.PublicRead
             };
 
-            var fileTransferUtility = new TransferUtility(_s3Client);
-            await fileTransferUtility.UploadAsync(uploadRequest);
+            try
+            {
+                await _s3Client.PutObjectAsync(putRequest);
 
-            // აბრუნებს მუდმივ ლინკს
-            return $"{_serviceUrl.TrimEnd('/')}/{_bucketName}/{fileKey}";
+
+                return $"https://coordinated-pocket.t3.storage.dev/{fileKey}";
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"S3 Upload failed: {ex.Message}");
+            }
         }
     }
 }
