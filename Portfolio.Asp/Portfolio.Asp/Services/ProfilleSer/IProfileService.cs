@@ -9,5 +9,6 @@ namespace Portfolio.Asp.Services.ProfilleSer
         Task Update(UpdateProfilerequest request);
         Task Delete(int id);
         Task<UserProfileDTO?> GetById(int id);
+
     }
 }
