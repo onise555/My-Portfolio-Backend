@@ -33,22 +33,27 @@ namespace Portfolio.Asp.Services.UserSer
 
 
 
+
+
+
+
         public async Task Update(UpdateUserRequest request)
         {
             var user = await _repo.GetByIdAsync(request.Id);
-
             if (user == null)
-                throw new Exception("User not found");
+                throw new KeyNotFoundException($"User with id={request.Id} not found");
 
             user.FullName = request.FullName;
 
             if (request.ProfileImage != null)
             {
+                await _s3.DeleteFileAsync(user.ProfileImage); 
                 user.ProfileImage = await _s3.UploadFileAsync(request.ProfileImage, "users/images");
             }
 
             if (request.ProfileVideo != null)
             {
+                await _s3.DeleteFileAsync(user.ProfileVideo); 
                 user.ProfileVideo = await _s3.UploadFileAsync(request.ProfileVideo, "users/videos");
             }
 
@@ -69,6 +74,7 @@ namespace Portfolio.Asp.Services.UserSer
             }).ToList();
         }
 
+
         public async Task<UserDTO?> GetById(int id)
         {
             var user = await _repo.GetByIdAsync(id);
@@ -82,14 +88,19 @@ namespace Portfolio.Asp.Services.UserSer
             };
         }
 
+
+
         public async Task Delete(int id)
         {
             var user = await _repo.GetByIdAsync(id);
-
             if (user == null)
-                throw new Exception("User not found");
+                throw new KeyNotFoundException($"User with id={id} not found");
 
+            await _s3.DeleteFileAsync(user.ProfileImage);
+            await _s3.DeleteFileAsync(user.ProfileVideo);
             await _repo.DeleteAsync(user);
         }
+
+
     }
 }

@@ -49,13 +49,38 @@ namespace Portfolio.Asp.Services
             try
             {
                 await _s3Client.PutObjectAsync(putRequest);
-
-
                 return $"https://coordinated-pocket.t3.storage.dev/{fileKey}";
             }
             catch (Exception ex)
             {
                 throw new Exception($"S3 Upload failed: {ex.Message}");
+            }
+        }
+
+
+        public async Task DeleteFileAsync(string? fileUrl)
+        {
+            if (string.IsNullOrEmpty(fileUrl)) return;
+
+            // URL-დან fileKey-ს ამოღება
+            // მაგ: "https://coordinated-pocket.t3.storage.dev/users/images/abc.jpg"
+            //       → fileKey = "users/images/abc.jpg"
+            var uri = new Uri(fileUrl);
+            var fileKey = uri.AbsolutePath.TrimStart('/');
+
+            var deleteRequest = new DeleteObjectRequest
+            {
+                BucketName = _bucketName,
+                Key = fileKey
+            };
+
+            try
+            {
+                await _s3Client.DeleteObjectAsync(deleteRequest);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"S3 Delete failed: {ex.Message}");
             }
         }
     }
