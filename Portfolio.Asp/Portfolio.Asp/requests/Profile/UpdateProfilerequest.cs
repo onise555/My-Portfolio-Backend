@@ -4,4 +4,6 @@ public class UpdateProfilerequest
 {
     public int Id { get; set; }
     public string About { get; set; }
+    
+    public int UserId { get; set; } 
 }
