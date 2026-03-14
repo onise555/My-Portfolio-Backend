@@ -54,6 +54,11 @@ namespace Portfolio.Asp.Services.ProfilleSer
             };
         }
 
+        public Task<UserProfileDTO?> GetById(int userId)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task Update(UpdateProfilerequest request)
         {
             throw new NotImplementedException();
