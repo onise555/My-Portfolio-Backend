@@ -15,30 +15,17 @@ namespace Portfolio.Asp.Services.ProfilleSer
             _repo = repo;
         }
 
-        public Task Create(CreateProfilerequest request)
-        {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-            throw new NotImplementedException();
-        }
 
-        public async Task CreateProfile(CreateProfilerequest request)
+        public async Task Create(CreateProfilerequest request)
         {
-            var profile = new Profile()
+            var profile = new Profile
             {
                 UserId = request.UserId,
                 About = request.About,
             };
 
-            if (profile == null)
-            {
-                profile = new Profile();
-            }
-        
-
             await _repo.AddAsync(profile);
-
-
         }
-
 
         public Task Delete(int id)
         {
