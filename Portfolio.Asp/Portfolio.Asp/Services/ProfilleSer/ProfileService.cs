@@ -61,19 +61,17 @@ namespace Portfolio.Asp.Services.ProfilleSer
             throw new NotImplementedException();
         }
 
-        public async Task Update( UpdateProfilerequest request)
+        public async Task Update(int userId, UpdateProfilerequest request)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
-            // მხოლოდ საჭირო პროფილს წამოიღებს
-            var profile = await _repo.GetByIdAsync(request.UserId);
+            var profile = await _repo.GetByIdAsync(userId);
 
             if (profile == null)
-                throw new KeyNotFoundException($"user '{request.UserId}' not found.");
+                throw new KeyNotFoundException($"Profile for user '{userId}' not found.");
 
             profile.About = request.About;
-            // სხვა ველებიც დაამატე საჭიროებისამებრ
 
             await _repo.UpdateAsync(profile);
         }
