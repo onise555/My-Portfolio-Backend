@@ -6,7 +6,9 @@ using Portfolio.Asp.requests.Profile;
 
 namespace Portfolio.Asp.Services.ProfilleSer
 {
+
     public class ProfileService : IProfileService
+
     {
         private readonly IRepository<Profile> _repo;
 
@@ -14,6 +16,9 @@ namespace Portfolio.Asp.Services.ProfilleSer
         {
             _repo = repo;
         }
+
+
+
 
         public async Task Create(CreateProfilerequest request)
         {
