@@ -43,9 +43,9 @@ namespace Portfolio.Asp.Controllers
 
 
         [HttpPut("update-profile/{userId}")]
-        public async Task<IActionResult> Update(int userId, [FromForm] UpdateProfilerequest request)
+        public async Task<IActionResult> Update(UpdateProfilerequest request)
         {
-            await _service.Update(userId, request);
+            await _service.Update(request);
 
             return Ok();
         }
