@@ -32,20 +32,23 @@ namespace Portfolio.Asp.Services.ProfilleSer
         {
             throw new NotImplementedException();
         }
-        public async Task<UserDTO?> GetById(int id)
+
+  
+        public async Task<UserProfileDTO?> GetById(int id)
         {
             var user = await _repo.GetByIdAsync(id);
 
             if (user == null)
                 return null;
 
-            return new UserDTO
+            return new UserProfileDTO
             {
-                Id = user.Id,
-                FullName = user.About,
-      
+                id = user.Id,
+                About = user.About,
+
             };
         }
+
         public Task Update(UpdateProfilerequest request)
         {
             throw new NotImplementedException();
