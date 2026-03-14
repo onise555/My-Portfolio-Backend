@@ -39,5 +39,22 @@ namespace Portfolio.Asp.Controllers
             return Ok(profile);
         }
 
+        
+        
+        
+        [HttpPut("Update-User")]
+        public async Task<IActionResult> Update([FromForm] UpdateProfilerequest request)
+        {
+
+
+            await _service.Update(request);
+
+            return Ok(request);
+        }
+        
+
+        
+        
+        
     }
 }
