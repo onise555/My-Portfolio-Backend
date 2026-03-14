@@ -30,6 +30,7 @@ namespace Portfolio.Asp.Services.ProfilleSer
 
 
 
+
         public Task Delete(int id)
         {
             throw new NotImplementedException();
@@ -60,15 +61,18 @@ namespace Portfolio.Asp.Services.ProfilleSer
 
 
 
+
         public async Task Update(UpdateProfilerequest request)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
-            var profile = await _repo.GetByIdAsync(request.Id);
+
+            var profiles = await _repo.GetAllAsync();
+            var profile = profiles.FirstOrDefault(p => p.UserId == request.UserId);
 
             if (profile == null)
-                throw new KeyNotFoundException($"Profile not found for userId {request.UserId}.");
+                throw new KeyNotFoundException($"Profile not found for userId ");
 
             profile.About = request.About;
 
