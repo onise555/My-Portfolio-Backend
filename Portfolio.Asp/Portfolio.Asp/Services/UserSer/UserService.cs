@@ -55,6 +55,8 @@ namespace Portfolio.Asp.Services.UserSer
             await _repo.UpdateAsync(user);
         }
 
+
+
         public async Task<List<UserDTO>> GetAllUser()
         {
             var users = await _repo.GetAllAsync();
@@ -70,6 +72,7 @@ namespace Portfolio.Asp.Services.UserSer
         public async Task<UserDTO?> GetById(int id)
         {
             var user = await _repo.GetByIdAsync(id);
+
             return user == null ? null : new UserDTO
             {
                 Id = user.Id,
@@ -82,7 +85,11 @@ namespace Portfolio.Asp.Services.UserSer
         public async Task Delete(int id)
         {
             var user = await _repo.GetByIdAsync(id);
-            if (user != null) await _repo.DeleteAsync(user);
+
+            if (user == null)
+                throw new Exception("User not found");
+
+            await _repo.DeleteAsync(user);
         }
     }
 }

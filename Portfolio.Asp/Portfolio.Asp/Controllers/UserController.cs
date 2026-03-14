@@ -38,15 +38,14 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
-    [HttpPut("Update-User/{id}")]
-    public async Task<IActionResult> Update(int id, [FromForm] UpdateUserRequest request)
+    [HttpPut("Update-User")]
+    public async Task<IActionResult> Update( [FromForm] UpdateUserRequest request)
     {
-        if (id != request.Id)
-            return BadRequest();
+   
 
         await _service.Update(request);
 
-        return Ok();
+        return Ok(request);
     }
 
     [HttpDelete("User/{id}")]
