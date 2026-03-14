@@ -1,5 +1,5 @@
 ﻿using Amazon.S3;
-using Amazon.S3.Transfer;
+using Amazon.S3.Model;
 using Amazon.Runtime;
 
 namespace Portfolio.Asp.FileUploader
@@ -10,35 +10,36 @@ namespace Portfolio.Asp.FileUploader
         {
             if (file == null || file.Length == 0) return null;
 
-            var accessKey = config["S3Config:AccessKey"];
-            var secretKey = config["S3Config:SecretKey"];
-            var serviceUrl = config["S3Config:ServiceUrl"] ?? "";
-            var bucketName = config["S3Config:BucketName"];
+            var accessKey = config["AWS_ACCESS_KEY_ID"] ?? config["S3Config:AccessKey"];
+            var secretKey = config["AWS_SECRET_ACCESS_KEY"] ?? config["S3Config:SecretKey"];
+            var bucketName = config["AWS_S3_BUCKET_NAME"] ?? config["S3Config:BucketName"] ?? "coordinated-pocket-nxuvrv";
+            var serviceUrl = config["AWS_ENDPOINT_URL"] ?? config["S3Config:ServiceUrl"] ?? "https://t3.storageapi.dev";
 
             var credentials = new BasicAWSCredentials(accessKey, secretKey);
-            var s3Config = new AmazonS3Config
+            using var client = new AmazonS3Client(credentials, new AmazonS3Config
             {
                 ServiceURL = serviceUrl,
                 ForcePathStyle = true
-            };
+            });
 
-            using var client = new AmazonS3Client(credentials, s3Config);
-            var fileKey = $"{folder}/{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+            var extension = Path.GetExtension(file.FileName);
+            var fileKey = $"{folder}/{Guid.NewGuid()}{extension}";
 
             using var stream = file.OpenReadStream();
-            var uploadRequest = new TransferUtilityUploadRequest
+            var putRequest = new PutObjectRequest
             {
-                InputStream = stream,
-                Key = fileKey,
                 BucketName = bucketName,
+                Key = fileKey,
+                InputStream = stream,
                 ContentType = file.ContentType,
-                CannedACL = S3CannedACL.PublicRead // მუდმივი წვდომისთვის
+                DisablePayloadSigning = true,
+                CannedACL = S3CannedACL.PublicRead
             };
 
-            var transferUtility = new TransferUtility(client);
-            await transferUtility.UploadAsync(uploadRequest);
+            await client.PutObjectAsync(putRequest);
 
-            return $"{serviceUrl.TrimEnd('/')}/{bucketName}/{fileKey}";
+            var baseUrl = serviceUrl.TrimEnd('/');
+            return $"{baseUrl}/{bucketName}/{fileKey}";
         }
     }
 }
